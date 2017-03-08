@@ -17,7 +17,7 @@ app.get('/scrape', function(req, res){
       $('a[href*="places"]').filter(function(){
         var data = $(this);
         country = data.text().trim();
-        console.log(country);
+
         json.country = country;
       });
 
