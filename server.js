@@ -1,8 +1,10 @@
 var express = require('express');
-var fs      = require('fs');
+var fs = require('fs');
 var request = require('request');
 var cheerio = require('cheerio');
-var app     = express();
+var googleTrends = require('google-trends-api');
+var app = express();
+var http = require('http');
 
 app.get('/scrape', function(req, res){
   url = 'https://www.kickstarter.com/projects/1449277917/1681752382?token=b9cbe6aa';
@@ -37,11 +39,26 @@ app.get('/scrape', function(req, res){
     }
 
     fs.writeFile('output.json', JSON.stringify(json, null, 4), function(err){
-      console.log(err);
       console.log('File successfully written! - Check your project directory for the output.json file');
     });
-    console.log(json);
-    res.send('Check your console!');
+
+    fs.readFile('./index.html', function (err, html) {     
+      http.createServer(function(request, response) {  
+          res.writeHeader(200, {"Content-Type": "text/html"});  
+          res.write(html);  
+          res.end();  
+      });
+    });
+
+   //res.send('Check your console!');
+
+    googleTrends.interestByRegion({keyword: json.category, startTime: new Date('2016-02-01'), endTime: new Date('2017-02-01'), resolution: 'COUNTRY'})
+      .then(function(results){
+        console.log('These results are awesome', results);
+      })
+      .catch(function(err){
+        console.error('Oh no there was an error', err);
+    });
   });
 });
 
