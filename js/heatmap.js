@@ -1,31 +1,31 @@
-// Load the data
 d3.queue()
 
-    // Point to the data files
     .defer(d3.csv, "data/success_europe_filter.csv")
     .defer(d3.csv, "data/failed_europe_filter.csv")
-
-    // When the data is loaded, run the function 'onDataLoaded'
     .await(onDataLoaded);
 
-// Check the data is properly loadeed
 function onDataLoaded(error, dataSucess, dataFailed) {
 
     if (error) {
         console.log('Error log: ' + error);
     } else {
-        filterData(dataSucess);
-        filterData(dataFailed);
+        handleData(dataSucess, dataFailed);
     }
 
 };
 
-// Filter the data
-function filterData(data) {
+function handleData(dataSucess, dataFailed){
+
+    var data = d3.merge([dataSucess, dataFailed]);
+    structureData(data);
+
+}
+
+function structureData(data) {
 
     var filteredData = d3.nest()
 
-        // Arrange data into months
+        // Nest by month
         .key(function(d) {
             var timestampRaw = d.launched_at * 1000, // Data needs '000' appended to be a valid timestamp
                 timestampDate = new Date(timestampRaw), // Converts integer into date object
@@ -33,43 +33,113 @@ function filterData(data) {
             return timestampMonth;
         }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
 
-        // Then arrange data into top level category
+        // Nest by category
         .key(function(d) {
             return d["category/parent_id"];
         }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
 
-        // Then arrange data into sub category
+        // Nest by subcategory
         .key(function(d) {
             return d["category/id"];
         }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
 
+        // Nest by state (successful / failed)
+        .key(function(d) {
+            return d["state"];
+        })
+
         .entries(data);
 
-    console.log(filteredData);
-
+    extendData(filteredData);
 }
 
-var dataStructure = {
-    "monthName": {
-        "total": 0,
-        "failed": 0,
-        "success": 0,
-        "percentile": 100,
-        "categories": {
-            "categoryName": {
-                "all": {
-                    "total": 0,
-                    "failed": 0,
-                    "success": 0,
-                    "percentile": 100,
-                },
-                "subCategoryName": {
-                    "total": 0,
-                    "failed": 0,
-                    "success": 0,
-                    "percentile": 100,
-                },
-            }
-        }
-    },
-};
+// Function to add totals to the data
+function extendData(data){
+
+    var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        categoryNames = [],
+        subcategoryNames = [];
+
+    // Loop through months
+    //-------------------
+    _.map(data, function (month, i) {
+
+        var monthFailed     = 0,
+            monthSuccessful = 0,
+            monthTotal      = 0,
+            monthPercentage = 0;
+
+        // Assign month name
+        month.month = monthNames[i];
+
+        // Loop through categories
+        //-------------------
+        _.map(month.values, function (category, i) {
+
+            var categoryFailed     = 0,
+                categorySuccessful = 0,
+                categoryTotal      = 0,
+                categoryPercentage = 0;
+
+            // Assign category names
+            category.category = categoryNames[i];
+
+            // Loop through subcategories
+            //-------------------
+            _.map(category.values, function (subcategory, i) {
+
+                var subcategoryFailed     = 0,
+                    subcategorySuccessful = 0,
+                    subcategoryTotal      = 0,
+                    subcategoryPercentage = 0;
+
+                // Assign subcategory names
+                subcategory.subcategory = subcategoryNames[i];
+
+                // Loop through stats
+                //-------------------
+                _.map(subcategory.values, function (state) {
+
+                    // Assign totals to subcategories
+                    if (state.key === 'successful') {
+                        subcategorySuccessful = state.values.length;
+                    }
+
+                    if (state.key === 'failed') {
+                        subcategoryFailed = state.values.length;
+                    }
+
+                    subcategory.failed = subcategoryFailed;
+                    subcategory.successful = subcategorySuccessful;
+                    subcategory.total = subcategoryFailed + subcategorySuccessful;
+                    subcategory.percentile = ((subcategorySuccessful / (subcategoryFailed + subcategorySuccessful)) * 100).toFixed(2);
+
+                });
+
+                // Assign totals to categories
+                categoryFailed = categoryFailed + subcategory.failed;
+                categorySuccessful = categorySuccessful + subcategory.successful;
+                categoryTotal = categoryTotal + subcategory.total;
+
+                category.failed = categoryFailed;
+                category.successful = categorySuccessful;
+                category.total = categoryTotal;
+                category.percentile = ((categorySuccessful / (categoryFailed + categorySuccessful)) * 100).toFixed(2);
+
+            });
+
+            // Assign totals to categories
+            monthFailed = monthFailed + category.failed;
+            monthSuccessful = monthSuccessful + category.successful;
+            monthTotal = monthTotal + category.total;
+
+            month.failed = monthFailed;
+            month.successful = monthSuccessful;
+            month.total = monthTotal;
+            month.percentile = ((monthSuccessful / (monthFailed + monthSuccessful)) * 100).toFixed(2);
+        });
+    });
+
+    console.log(data);
+
+}
