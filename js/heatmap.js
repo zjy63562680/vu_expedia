@@ -60,6 +60,11 @@ function extendData(data){
         categoryNames = [],
         subcategoryNames = [];
 
+    // Set dataset variables
+    var dsMonthNames = [],
+        dsCategoryNames = [],
+        dsSubcategoryNames = [];
+
     // Loop through months
     //-------------------
     _.map(data, function (month, i) {
@@ -72,9 +77,12 @@ function extendData(data){
         // Assign month name
         month.month = monthNames[i];
 
+        // Push month names to array
+        dsMonthNames.push(month.month);
+
         // Loop through categories
         //-------------------
-        _.map(month.values, function (category, i) {
+        _.map(month.values, function (category) {
 
             var categoryFailed     = 0,
                 categorySuccessful = 0,
@@ -82,11 +90,14 @@ function extendData(data){
                 categoryPercentage = 0;
 
             // Assign category names
-            category.category = categoryNames[i];
+            category.category = categoryNames[category.key];
+
+            // Push category names to array
+            dsCategoryNames.push(category.category);
 
             // Loop through subcategories
             //-------------------
-            _.map(category.values, function (subcategory, i) {
+            _.map(category.values, function (subcategory) {
 
                 var subcategoryFailed     = 0,
                     subcategorySuccessful = 0,
@@ -94,7 +105,10 @@ function extendData(data){
                     subcategoryPercentage = 0;
 
                 // Assign subcategory names
-                subcategory.subcategory = subcategoryNames[i];
+                subcategory.subcategory = subcategoryNames[subcategory.key];
+
+                // Push category names to array
+                dsSubcategoryNames.push(subcategory.subcategory);
 
                 // Loop through stats
                 //-------------------
@@ -140,6 +154,30 @@ function extendData(data){
         });
     });
 
-    console.log(data);
+    // Merge duplicates in arrays
+    dsMonthNames = _.uniqBy(dsMonthNames);
+    dsCategoryNames = _.uniqBy(dsCategoryNames);
+    dsSubcategoryNames = _.uniqBy(dsSubcategoryNames);
+
+    // Send data to visualisation
+    createVisualisation(data, dsMonthNames, dsCategoryNames, dsSubcategoryNames);
+
+}
+
+// Create visualization
+function createVisualisation(rawdata, months, categories, subcategories) {
+
+    // View the data in the console (delete later)
+    console.log('rawdata: ');
+    console.log(rawdata);
+    console.log('months: ');
+    console.log(months);
+    console.log('categories: ');
+    console.log(categories);
+    console.log('subcategories: ');
+    console.log(subcategories);
+
+    // Create visualization under here
+    // ...
 
 }
