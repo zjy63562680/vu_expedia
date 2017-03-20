@@ -35,12 +35,14 @@ function structureData(data) {
 
         // Nest by category
         .key(function(d) {
-            return d["category/parent_id"];
+            d.parentid = d["category/parent_id"];
+            return d.parentid;
         }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
 
         // Nest by subcategory
         .key(function(d) {
-            return d["category/id"];
+            d.categoryid = d["category/id"];
+            return d.categoryid;
         }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
 
         // Nest by state (successful / failed)
@@ -604,14 +606,6 @@ function extendData(data){
             //-------------------
             _.map(category.values, function (subcategory, i) {
 
-                if (i === 0) {
-                    category.monthname = month.monthname;
-                    category.monthnum = month.monthnum;
-                    category.subcategoryname = "all";
-                    category.subcategorynum = 0;
-                    flatData.push(category);
-                }
-
                 var subcategoryFailed     = 0,
                     subcategorySuccessful = 0,
                     subcategoryTotal      = 0,
@@ -619,12 +613,11 @@ function extendData(data){
 
                 // Assign subcategories
                 subcategory.subcategoryname = subcategoryNames[subcategory.key].name;
-                subcategory.subcategorynum = i + 1;
 
                 // Push category names to array
                 dsSubcategoryNames.push(subcategory.subcategoryname);
 
-                // Loop through stats
+                // Loop through states
                 //-------------------
                 _.map(subcategory.values, function (state) {
 
@@ -640,12 +633,22 @@ function extendData(data){
                     subcategory.monthname = month.monthname;
                     subcategory.monthnum = month.monthnum;
                     subcategory.categoryname = category.categoryname;
+                    subcategory.categorynum = state.values[0].parentid;
+                    subcategory.subcategorynum = state.values[0].categoryid;
                     subcategory.failed = subcategoryFailed;
                     subcategory.successful = subcategorySuccessful;
                     subcategory.total = subcategoryFailed + subcategorySuccessful;
                     subcategory.percentile = ((subcategorySuccessful / (subcategoryFailed + subcategorySuccessful)) * 100).toFixed(2);
 
                 });
+
+                if (i === 0) {
+                    category.monthname = month.monthname;
+                    category.monthnum = month.monthnum;
+                    category.subcategoryname = "all";
+                    category.subcategorynum = subcategory.categorynum;
+                    flatData.push(category);
+                }
 
                 // Push data to flat list
                 flatData.push(subcategory);
@@ -721,7 +724,7 @@ function createVisualisation(rawdata, flatData, months, categories, subcategorie
 
     var cards = canvas.selectAll(".hour")
     .data(flatData, function(d) {
-        console.log(d);
-        return d.day+':'+d.hour;
+        console.log(d.subcategorynum + ' ' + d.monthnum );
+        //return d.day+':'+d.hour;
     });
 }
