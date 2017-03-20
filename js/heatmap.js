@@ -565,6 +565,9 @@ function extendData(data){
         dsCategoryNames = [],
         dsSubcategoryNames = [];
 
+    // Array of flat data
+    var flatData = [];
+
     // Loop through months
     //-------------------
     _.map(data, function (month, i) {
@@ -575,10 +578,11 @@ function extendData(data){
             monthPercentage = 0;
 
         // Assign month name
-        month.month = monthNames[i];
+        month.monthname = monthNames[i];
+        month.monthnum = i;
 
         // Push month names to array
-        dsMonthNames.push(month.month);
+        dsMonthNames.push(month.monthname);
 
         // Loop through categories
         //-------------------
@@ -590,25 +594,35 @@ function extendData(data){
                 categoryPercentage = 0;
 
             // Assign category names
-            category.category = categoryNames[category.key].name;
+            category.categoryname = categoryNames[category.key].name;
 
             // Push category names to array
-            dsCategoryNames.push(category.category);
+            dsCategoryNames.push(category.categoryname);
+
 
             // Loop through subcategories
             //-------------------
-            _.map(category.values, function (subcategory) {
+            _.map(category.values, function (subcategory, i) {
+
+                if (i === 0) {
+                    category.monthname = month.monthname;
+                    category.monthnum = month.monthnum;
+                    category.subcategoryname = "all";
+                    category.subcategorynum = 0;
+                    flatData.push(category);
+                }
 
                 var subcategoryFailed     = 0,
                     subcategorySuccessful = 0,
                     subcategoryTotal      = 0,
                     subcategoryPercentage = 0;
 
-                // Assign subcategory names
-                subcategory.subcategory = subcategoryNames[subcategory.key].name;
+                // Assign subcategories
+                subcategory.subcategoryname = subcategoryNames[subcategory.key].name;
+                subcategory.subcategorynum = i + 1;
 
                 // Push category names to array
-                dsSubcategoryNames.push(subcategory.subcategory);
+                dsSubcategoryNames.push(subcategory.subcategoryname);
 
                 // Loop through stats
                 //-------------------
@@ -623,12 +637,18 @@ function extendData(data){
                         subcategoryFailed = state.values.length;
                     }
 
+                    subcategory.monthname = month.monthname;
+                    subcategory.monthnum = month.monthnum;
+                    subcategory.categoryname = category.categoryname;
                     subcategory.failed = subcategoryFailed;
                     subcategory.successful = subcategorySuccessful;
                     subcategory.total = subcategoryFailed + subcategorySuccessful;
                     subcategory.percentile = ((subcategorySuccessful / (subcategoryFailed + subcategorySuccessful)) * 100).toFixed(2);
 
                 });
+
+                // Push data to flat list
+                flatData.push(subcategory);
 
                 // Assign totals to categories
                 categoryFailed = categoryFailed + subcategory.failed;
@@ -660,28 +680,19 @@ function extendData(data){
     dsSubcategoryNames = _.uniqBy(dsSubcategoryNames); // This causes problems with subcategories of the same name
 
     // Send data to visualisation
-    createVisualisation(data, dsMonthNames, dsCategoryNames, dsSubcategoryNames);
+    createVisualisation(data, flatData, dsMonthNames, dsCategoryNames, dsSubcategoryNames);
 
 }
 
 // Create visualization
-function createVisualisation(rawdata, months, categories, subcategories) {
-
-    // View the data in the console (delete later)
-    console.log('rawdata: ');
-    console.log(rawdata);
-    console.log('months: ');
-    console.log(months);
-    console.log('categories: ');
-    console.log(categories);
-    console.log('subcategories: ');
-    console.log(subcategories);
+function createVisualisation(rawdata, flatData, months, categories, subcategories) {
 
     // Create Canvas
     var canvasMargin = {top: 25, right: 25, bottom: 75, left: 75},
         canvasWidth = 960 - canvasMargin.left - canvasMargin.right,
         canvasHeight = 500 - canvasMargin.top - canvasMargin.bottom,
-        barWidth = 60;
+        barPadding = 10,
+        barWidth = barWidth = Math.floor(canvasWidth / 12) - 1;
 
     var canvas = d3.select("body")
         .append("svg")
@@ -706,4 +717,11 @@ function createVisualisation(rawdata, months, categories, subcategories) {
         .attr("font-family","sans-serif")
         .attr("font-size","10px")
 
+    ///////////// BELOW
+
+    var cards = canvas.selectAll(".hour")
+    .data(flatData, function(d) {
+        console.log(d);
+        return d.day+':'+d.hour;
+    });
 }
