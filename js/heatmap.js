@@ -1,7 +1,7 @@
 d3.queue()
 
-    .defer(d3.csv, "data/success_europe_filter.csv")
-    .defer(d3.csv, "data/failed_europe_filter.csv")
+    .defer(d3.csv, "data/_failed.csv")
+    .defer(d3.csv, "data/_succes.csv")
     .await(onDataLoaded);
 
 function onDataLoaded(error, dataSucess, dataFailed) {
@@ -14,43 +14,42 @@ function onDataLoaded(error, dataSucess, dataFailed) {
 
 };
 
-function handleData(dataSucess, dataFailed){
+function handleData(dataFailed, dataSucess){
 
-    var data = d3.merge([dataSucess, dataFailed]);
+    var data = d3.merge([dataFailed, dataSucess]);
     structureData(data);
-
 }
 
 function structureData(data) {
 
     var filteredData = d3.nest()
 
-        // Nest by month
-        .key(function(d) {
-            var timestampRaw = d.launched_at * 1000, // Data needs '000' appended to be a valid timestamp
-                timestampDate = new Date(timestampRaw), // Converts integer into date object
-                timestampMonth = timestampDate.getMonth(); // Gets the month from the date object
-            return timestampMonth;
-        }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
+       // Nest by month
+       .key(function(d) {
+           var timestampRaw = d.launched_at * 1000, // Data needs '000' appended to be a valid timestamp
+               timestampDate = new Date(timestampRaw), // Converts integer into date object
+               timestampMonth = timestampDate.getMonth(); // Gets the month from the date object
+           return timestampMonth;
+       }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
 
-        // Nest by category
-        .key(function(d) {
-            d.parentid = d["category/parent_id"];
-            return d.parentid;
-        }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
+       // Nest by category
+       .key(function(d) {
+           d.parentid = d["category/parent_id"];
+           return d.parentid;
+       }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
 
-        // Nest by subcategory
-        .key(function(d) {
-            d.categoryid = d["category/id"];
-            return d.categoryid;
-        }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
+       // Nest by subcategory
+       .key(function(d) {
+           d.categoryid = d["category/id"];
+           return d.categoryid;
+       }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
 
-        // Nest by state (successful / failed)
-        .key(function(d) {
-            return d["state"];
-        })
+       // Nest by state (successful / failed)
+       .key(function(d) {
+           return d["state"];
+       })
 
-        .entries(data);
+   .entries(data);
 
     extendData(filteredData);
 }
@@ -60,512 +59,571 @@ function extendData(data){
 
     var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
         categoryNames = {
+            "0": {
+                "name":"Art",
+                "id" : "0",
+            },
             "1": {
-                "name":"Art"
+                "name":"Comics",
+                "id":"13",
+            },
+            "2": {
+                "name":"Dance",
+                "id":"19",
             },
             "3": {
-                "name":"Comics"
+                "name":"Design",
+                "id":"24",
+            },
+            "4": {
+                "name":"Fashion",
+                "id":"31",
+            },
+            "5": {
+                "name":"Food",
+                "id":"40",
             },
             "6": {
-                "name":"Dance"
+                "name":"Film & Video",
+                "id":"53",
             },
             "7": {
-                "name":"Design"
+                "name":"Games",
+                "id":"73",
+            },
+            "8": {
+                "name":"Journalism",
+                "id":"81",
             },
             "9": {
-                "name":"Fashion"
+                "name":"Music",
+                "id":"87",
             },
             "10": {
-                "name":"Food"
+                "name":"Photography",
+                "id":"105",
             },
             "11": {
-                "name":"Film & Video"
+                "name":"Technology",
+                "id":"112",
             },
             "12": {
-                "name":"Games"
+                "name":"Theater",
+                "id":"128",
             },
             "13": {
-                "name":"Journalism"
+                "name":"Publishing",
+                "id":"135",
             },
             "14": {
-                "name":"Music"
+                "name":"Crafts",
+                "id":"151",
             },
-            "15": {
-                "name":"Photography"
-            },
-            "16": {
-                "name":"Technology"
-            },
-            "17": {
-                "name":"Theater"
-            },
-            "18": {
-                "name":"Publishing"
-            },
-            "26": {
-                "name":"Crafts"
-            },
-        },
+        }
         subcategoryNames = {
-            "20": {
+            "0": {
+                "name":"Art"
+            },
+            "1": {
                 "name":"Conceptual Art"
             },
-            "21": {
+            "2": {
                 "name":"Digital Art"
             },
-            "22": {
+            "3": {
                 "name":"Illustration"
             },
-            "23": {
+            "4": {
                 "name":"Painting"
             },
-            "24": {
+            "5": {
                 "name":"Performance Art"
             },
-            "25": {
+            "6": {
                 "name":"Sculpture"
             },
-            "53": {
+            "7": {
                 "name":"Public Art"
             },
-            "54": {
+            "8": {
                 "name":"Mixed Media"
             },
-            "287": {
+            "9": {
                 "name":"Ceramics"
             },
-            "288": {
+            "10": {
                 "name":"Installations"
             },
-            "289": {
+            "11": {
                 "name":"Textiles"
             },
-            "290": {
+            "12": {
                 "name":"Video Art"
             },
-            "249": {
+            "13": {
+                "name":"Comics"
+            },
+            "14": {
                 "name":"Anthologies"
             },
-            "250": {
+            "15": {
                 "name":"Comic Books"
             },
-            "251": {
+            "16": {
                 "name":"Events"
             },
-            "252": {
+            "17": {
                 "name":"Graphic Novels"
             },
-            "253": {
+            "18": {
                 "name":"Webcomics"
             },
-            "254": {
+            "19": {
+                "name":"Dance"
+            },
+            "20": {
                 "name":"Performances"
             },
-            "255": {
+            "21": {
                 "name":"Residencies"
             },
-            "256": {
+            "22": {
                 "name":"Spaces"
             },
-            "257": {
+            "23": {
                 "name":"Workshops"
             },
-            "27": {
+            "24": {
+                "name":"Design"
+            },
+            "25": {
                 "name":"Graphic Design"
             },
-            "28": {
+            "26": {
                 "name":"Product Design"
             },
-            "258": {
+            "27": {
                 "name":"Architecture"
             },
-            "259": {
+            "28": {
                 "name":"Civic Design"
             },
-            "260": {
+            "29": {
                 "name":"Interactive Design"
             },
-            "261": {
+            "30": {
                 "name":"Typography"
             },
-            "262": {
-                "name":"Accessories"
-            },
-            "263": {
-                "name":"Apparel"
-            },
-            "264": {
-                "name":"Childrenswear"
-            },
-            "265": {
-                "name":"Couture"
-            },
-            "266": {
-                "name":"Footwear"
-            },
-            "267": {
-                "name":"Jewelry"
-            },
-            "268": {
-                "name":"Pet Fashion"
-            },
-            "269": {
-                "name":"Ready-to-wear"
-            },
-            "304": {
-                "name":"Bacon"
-            },
-            "305": {
-                "name":"Community Gardens"
-            },
-            "306": {
-                "name":"Cookbooks"
-            },
-            "307": {
-                "name":"Drinks"
-            },
-            "308": {
-                "name":"Events"
-            },
-            "309": {
-                "name":"Farms"
-            },
-            "310": {
-                "name":"Farmer’s Markets"
-            },
-            "311": {
-                "name":"Food Trucks"
-            },
-            "312": {
-                "name":"Restaurants"
-            },
-            "313": {
-                "name":"Small Batch"
-            },
-            "314": {
-                "name":"Spaces"
-            },
-            "315": {
-                "name":"Vegan"
-            },
-            "29": {
-                "name":"Animation"
-            },
-            "30": {
-                "name":"Documentary"
-            },
             "31": {
-                "name":"Narrative Film"
+                "name":"Fashion"
             },
             "32": {
-                "name":"Shorts"
+                "name":"Accessories"
             },
             "33": {
-                "name":"Webseries"
-            },
-            "291": {
-                "name":"Action"
-            },
-            "292": {
-                "name":"Comedy"
-            },
-            "293": {
-                "name":"Drama"
-            },
-            "294": {
-                "name":"Experimental"
-            },
-            "295": {
-                "name":"Festivals"
-            },
-            "296": {
-                "name":"Fantasy"
-            },
-            "297": {
-                "name":"Horror"
-            },
-            "298": {
-                "name":"Movie Theaters"
-            },
-            "299": {
-                "name":"Music Videos"
-            },
-            "300": {
-                "name":"Romance"
-            },
-            "301": {
-                "name":"Science Fiction"
-            },
-            "302": {
-                "name":"Thrillers"
-            },
-            "303": {
-                "name":"Television"
-            },
-            "330": {
-                "name":"Family"
+                "name":"Apparel"
             },
             "34": {
-                "name":"Tabletop Games "
+                "name":"Childrenswear"
             },
             "35": {
-                "name":"Video games"
-            },
-            "270": {
-                "name":"Gaming Hardware"
-            },
-            "271": {
-                "name":"Live Games"
-            },
-            "272": {
-                "name":"Mobile Games"
-            },
-            "273": {
-                "name":"Playing Cards"
-            },
-            "274": {
-                "name":"Puzzles"
-            },
-            "357": {
-                "name":"Audio"
-            },
-            "358": {
-                "name":"Photo"
-            },
-            "359": {
-                "name":"Print"
-            },
-            "360": {
-                "name":"Video"
-            },
-            "361": {
-                "name":"Web"
+                "name":"Couture"
             },
             "36": {
-                "name":"Classical Music"
+                "name":"Footwear"
             },
             "37": {
-                "name":"Country & Folk"
+                "name":"Jewelry"
             },
             "38": {
-                "name":"Electronic Music"
+                "name":"Pet Fashion"
             },
             "39": {
-                "name":"Hip-Hop"
+                "name":"Ready-to-wear"
             },
             "40": {
-                "name":"Indie Rock"
+                "name":"Food"
             },
             "41": {
-                "name":"Jazz"
+                "name":"Bacon"
             },
             "42": {
-                "name":"Pop"
+                "name":"Community Gardens"
             },
             "43": {
-                "name":"Rock"
+                "name":"Cookbooks"
             },
             "44": {
-                "name":"World Music"
-            },
-            "241": {
-                "name":"Metal"
-            },
-            "316": {
-                "name":"Blues"
-            },
-            "317": {
-                "name":"Chiptune"
-            },
-            "318": {
-                "name":"Faith"
-            },
-            "319": {
-                "name":"Kids"
-            },
-            "320": {
-                "name":"Latin"
-            },
-            "321": {
-                "name":"Punk"
-            },
-            "322": {
-                "name":"R&B"
-            },
-            "275": {
-                "name":"Animals"
-            },
-            "276": {
-                "name":"Fine Art"
-            },
-            "277": {
-                "name":"Nature"
-            },
-            "278": {
-                "name":"People"
-            },
-            "279": {
-                "name":"Places"
-            },
-            "280": {
-                "name":"Photobooks"
-            },
-            "51": {
-                "name":"Software"
-            },
-            "52": {
-                "name":"Hardware"
-            },
-            "331": {
-                "name":"3D Printing"
-            },
-            "332": {
-                "name":"Apps"
-            },
-            "333": {
-                "name":"Camera Equipment"
-            },
-            "334": {
-                "name":"DIY Electronics"
-            },
-            "335": {
-                "name":"Fabrication Tools"
-            },
-            "336": {
-                "name":"Flight"
-            },
-            "337": {
-                "name":"Gadgets"
-            },
-            "338": {
-                "name":"Robots"
-            },
-            "339": {
-                "name":"Sound"
-            },
-            "340": {
-                "name":"Space Exploration"
-            },
-            "341": {
-                "name":"Wearables"
-            },
-            "342": {
-                "name":"Web"
-            },
-            "362": {
-                "name":"Makerspaces"
-            },
-            "281": {
-                "name":"Experimental"
-            },
-            "282": {
-                "name":"Festivals"
-            },
-            "283": {
-                "name":"Immersive"
-            },
-            "284": {
-                "name":"Musicals"
-            },
-            "285": {
-                "name":"Plays"
-            },
-            "286": {
-                "name":"Spaces"
+                "name":"Drinks"
             },
             "45": {
-                "name":"Art Books"
+                "name":"Events"
             },
             "46": {
-                "name":"Children’s Books"
+                "name":"Farms"
             },
             "47": {
-                "name":"Fiction"
+                "name":"Farmer’s Markets"
             },
             "48": {
-                "name":"Nonfiction"
+                "name":"Food Trucks"
             },
             "49": {
-                "name":"Periodicals"
+                "name":"Restaurants"
             },
             "50": {
+                "name":"Small Batch"
+            },
+            "51": {
+                "name":"Spaces"
+            },
+            "52": {
+                "name":"Vegan"
+            },
+            "53": {
+                "name":"Film & Video"
+            },
+            "54": {
+                "name":"Animation"
+            },
+            "55": {
+                "name":"Documentary"
+            },
+            "56": {
+                "name":"Narrative Film"
+            },
+            "57": {
+                "name":"Shorts"
+            },
+            "58": {
+                "name":"Webseries"
+            },
+            "59": {
+                "name":"Action"
+            },
+            "60": {
+                "name":"Comedy"
+            },
+            "61": {
+                "name":"Drama"
+            },
+            "62": {
+                "name":"Experimental"
+            },
+            "63": {
+                "name":"Festivals"
+            },
+            "64": {
+                "name":"Fantasy"
+            },
+            "65": {
+                "name":"Horror"
+            },
+            "66": {
+                "name":"Movie Theaters"
+            },
+            "67": {
+                "name":"Music Videos"
+            },
+            "68": {
+                "name":"Romance"
+            },
+            "69": {
+                "name":"Science Fiction"
+            },
+            "70": {
+                "name":"Thrillers"
+            },
+            "71": {
+                "name":"Television"
+            },
+            "72": {
+                "name":"Family"
+            },
+            "73": {
+                "name":"Games"
+            },
+            "74": {
+                "name":"Tabletop Games "
+            },
+            "75": {
+                "name":"Video games"
+            },
+            "76": {
+                "name":"Gaming Hardware"
+            },
+            "77": {
+                "name":"Live Games"
+            },
+            "78": {
+                "name":"Mobile Games"
+            },
+            "79": {
+                "name":"Playing Cards"
+            },
+            "80": {
+                "name":"Puzzles"
+            },
+            "81": {
+                "name":"Journalism"
+            },
+            "82": {
+                "name":"Audio"
+            },
+            "83": {
+                "name":"Photo"
+            },
+            "84": {
+                "name":"Print"
+            },
+            "85": {
+                "name":"Video"
+            },
+            "86": {
+                "name":"Web"
+            },
+            "87": {
+                "name":"Music"
+            },
+            "88": {
+                "name":"Classical Music"
+            },
+            "89": {
+                "name":"Country & Folk"
+            },
+            "90": {
+                "name":"Electronic Music"
+            },
+            "91": {
+                "name":"Hip-Hop"
+            },
+            "92": {
+                "name":"Indie Rock"
+            },
+            "93": {
+                "name":"Jazz"
+            },
+            "94": {
+                "name":"Pop"
+            },
+            "95": {
+                "name":"Rock"
+            },
+            "96": {
+                "name":"World Music"
+            },
+            "97": {
+                "name":"Metal"
+            },
+            "98": {
+                "name":"Blues"
+            },
+            "99": {
+                "name":"Chiptune"
+            },
+            "100": {
+                "name":"Faith"
+            },
+            "101": {
+                "name":"Kids"
+            },
+            "102": {
+                "name":"Latin"
+            },
+            "103": {
+                "name":"Punk"
+            },
+            "104": {
+                "name":"R&B"
+            },
+            "105": {
+                "name":"Photography"
+            },
+            "106": {
+                "name":"Animals"
+            },
+            "107": {
+                "name":"Fine Art"
+            },
+            "108": {
+                "name":"Nature"
+            },
+            "109": {
+                "name":"People"
+            },
+            "110": {
+                "name":"Places"
+            },
+            "111": {
+                "name":"Photobooks"
+            },
+            "112": {
+                "name":"Technology"
+            },
+            "113": {
+                "name":"Software"
+            },
+            "114": {
+                "name":"Hardware"
+            },
+            "115": {
+                "name":"3D Printing"
+            },
+            "116": {
+                "name":"Apps"
+            },
+            "117": {
+                "name":"Camera Equipment"
+            },
+            "118": {
+                "name":"DIY Electronics"
+            },
+            "119": {
+                "name":"Fabrication Tools"
+            },
+            "120": {
+                "name":"Flight"
+            },
+            "121": {
+                "name":"Gadgets"
+            },
+            "122": {
+                "name":"Robots"
+            },
+            "123": {
+                "name":"Sound"
+            },
+            "124": {
+                "name":"Space Exploration"
+            },
+            "125": {
+                "name":"Wearables"
+            },
+            "126": {
+                "name":"Web"
+            },
+            "127": {
+                "name":"Makerspaces"
+            },
+            "128": {
+                "name":"Theater"
+            },
+            "129": {
+                "name":"Experimental"
+            },
+            "130": {
+                "name":"Festivals"
+            },
+            "131": {
+                "name":"Immersive"
+            },
+            "132": {
+                "name":"Musicals"
+            },
+            "133": {
+                "name":"Plays"
+            },
+            "134": {
+                "name":"Spaces"
+            },
+            "135": {
+                "name":"Publishing"
+            },
+            "136": {
+                "name":"Art Books"
+            },
+            "137": {
+                "name":"Children’s Books"
+            },
+            "138": {
+                "name":"Fiction"
+            },
+            "139": {
+                "name":"Nonfiction"
+            },
+            "140": {
+                "name":"Periodicals"
+            },
+            "141": {
                 "name":"Poetry"
             },
-            "239": {
+            "142": {
                 "name":"Radio & Podcasts"
             },
-            "323": {
+            "143": {
                 "name":"Academic"
             },
-            "324": {
+            "144": {
                 "name":"Anthologies"
             },
-            "325": {
+            "145": {
                 "name":"Calendars"
             },
-            "326": {
+            "146": {
                 "name":"Literary Journals"
             },
-            "327": {
+            "147": {
                 "name":"Translations"
             },
-            "328": {
+            "148": {
                 "name":"Young Adult"
             },
-            "329": {
+            "149": {
                 "name":"Zines"
             },
-            "323": {
+            "150": {
                 "name":"Academic"
             },
-            "343": {
+            "151": {
+                "name":"Crafts"
+            },
+            "152": {
                 "name":"Candles"
             },
-            "344": {
+            "153": {
                 "name":"Crochet"
             },
-            "345": {
+            "154": {
                 "name":"DIY"
             },
-            "346": {
+            "155": {
                 "name":"Embroidery"
             },
-            "347": {
+            "156": {
                 "name":"Glass"
             },
-            "348": {
+            "157": {
                 "name":"Knitting"
             },
-            "349": {
+            "158": {
                 "name":"Letterpress"
             },
-            "350": {
+            "159": {
                 "name":"Pottery"
             },
-            "351": {
+            "160": {
                 "name":"Printing"
             },
-            "352": {
+            "161": {
                 "name":"Quilts"
             },
-            "353": {
+            "162": {
                 "name":"Stationary"
             },
-            "354": {
+            "163": {
                 "name":"Taxidermy"
             },
-            "355": {
+            "164": {
                 "name":"Weaving"
             },
-            "356": {
+            "165": {
                 "name":"Woodworking"
             },
         };
 
     // Set dataset variables
     var dsMonthNames = [],
-        dsCategoryNames = [],
-        dsSubcategoryNames = [];
+        dsCategoryNames = [];
 
     // Array of flat data
     var flatData = [];
@@ -573,11 +631,6 @@ function extendData(data){
     // Loop through months
     //-------------------
     _.map(data, function (month, i) {
-
-        var monthFailed     = 0,
-            monthSuccessful = 0,
-            monthTotal      = 0,
-            monthPercentage = 0;
 
         // Assign month name
         month.monthname = monthNames[i];
@@ -588,18 +641,12 @@ function extendData(data){
 
         // Loop through categories
         //-------------------
-        _.map(month.values, function (category) {
+        _.map(month.values, function (category, categoryIndex) {
 
             var categoryFailed     = 0,
                 categorySuccessful = 0,
                 categoryTotal      = 0,
                 categoryPercentage = 0;
-
-            // Assign category names
-            category.categoryname = categoryNames[category.key].name;
-
-            // Push category names to array
-            dsCategoryNames.push(category.categoryname);
 
 
             // Loop through subcategories
@@ -610,12 +657,6 @@ function extendData(data){
                     subcategorySuccessful = 0,
                     subcategoryTotal      = 0,
                     subcategoryPercentage = 0;
-
-                // Assign subcategories
-                subcategory.subcategoryname = subcategoryNames[subcategory.key].name;
-
-                // Push category names to array
-                dsSubcategoryNames.push(subcategory.subcategoryname);
 
                 // Loop through states
                 //-------------------
@@ -632,21 +673,21 @@ function extendData(data){
 
                     subcategory.monthname = month.monthname;
                     subcategory.monthnum = month.monthnum;
-                    subcategory.categoryname = category.categoryname;
-                    subcategory.categorynum = state.values[0].parentid;
-                    subcategory.subcategorynum = state.values[0].categoryid;
+                    subcategory.categorynum = state.values[0].categoryid;
+                    subcategory.categoryname = subcategoryNames[subcategory.categorynum].name;
                     subcategory.failed = subcategoryFailed;
                     subcategory.successful = subcategorySuccessful;
                     subcategory.total = subcategoryFailed + subcategorySuccessful;
                     subcategory.percentile = ((subcategorySuccessful / (subcategoryFailed + subcategorySuccessful)) * 100).toFixed(2);
-
                 });
 
+                // Adds total per category
                 if (i === 0) {
+                    category.type = "main";
                     category.monthname = month.monthname;
                     category.monthnum = month.monthnum;
-                    category.subcategoryname = "all";
-                    category.subcategorynum = subcategory.categorynum;
+                    category.categorynum = categoryNames[categoryIndex].id;
+                    category.categoryname = categoryNames[categoryIndex].name;
                     flatData.push(category);
                 }
 
@@ -665,25 +706,17 @@ function extendData(data){
 
             });
 
-            // Assign totals to categories
-            monthFailed = monthFailed + category.failed;
-            monthSuccessful = monthSuccessful + category.successful;
-            monthTotal = monthTotal + category.total;
-
-            month.failed = monthFailed;
-            month.successful = monthSuccessful;
-            month.total = monthTotal;
-            month.percentile = ((monthSuccessful / (monthFailed + monthSuccessful)) * 100).toFixed(2);
         });
     });
 
     // Merge duplicates in arrays
     dsMonthNames = _.uniqBy(dsMonthNames);
     dsCategoryNames = _.uniqBy(dsCategoryNames);
-    dsSubcategoryNames = _.uniqBy(dsSubcategoryNames); // This causes problems with subcategories of the same name
 
     // Send data to visualisation
-    createVisualisation(data, flatData, dsMonthNames, dsCategoryNames, dsSubcategoryNames);
+    createVisualisation(data, flatData, dsMonthNames, dsCategoryNames);
+
+    console.log(flatData);
 
 }
 
@@ -693,9 +726,11 @@ function createVisualisation(rawdata, flatData, months, categories, subcategorie
     // Create Canvas
     var canvasMargin = {top: 25, right: 25, bottom: 75, left: 75},
         canvasWidth = 960 - canvasMargin.left - canvasMargin.right,
-        canvasHeight = 500 - canvasMargin.top - canvasMargin.bottom,
+        canvasHeight = 5610 - canvasMargin.top - canvasMargin.bottom,
         barPadding = 10,
-        barWidth = barWidth = Math.floor(canvasWidth / 12) - 1;
+        barWidth = barWidth = Math.floor(canvasWidth / 12) - 1,
+        colors = ["#ff0000"],
+        gridSize = Math.floor(canvasWidth / 24);
 
     var canvas = d3.select("body")
         .append("svg")
@@ -720,11 +755,20 @@ function createVisualisation(rawdata, flatData, months, categories, subcategorie
         .attr("font-family","sans-serif")
         .attr("font-size","10px")
 
-    ///////////// BELOW
-
     var cards = canvas.selectAll(".hour")
     .data(flatData, function(d) {
-        console.log(d.subcategorynum + ' ' + d.monthnum );
-        //return d.day+':'+d.hour;
+        return d.monthnum+':'+d.categorynum;
     });
+
+    cards.enter().append("rect")
+              .attr("x", function(d) { return (d.monthnum - 1) * gridSize; })
+              .attr("y", function(d) { return (d.categorynum - 1) * gridSize; })
+              .attr("rx", 4)
+              .attr("ry", 4)
+              .attr("class", function(d) { return (d.main) })
+              .attr("width", '34')
+              .attr("height", '34')
+             .style("fill", colors[0])
+             .style("opacity", function(d) { return (d.percentile / 100)})
+
 }
