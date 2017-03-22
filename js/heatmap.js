@@ -622,11 +622,10 @@ function extendData(data){
         };
 
     // Set dataset variables
-    var dsMonthNames = [],
-        dsCategoryNames = [];
+    var dsMonthNames = [];
 
     // Array of flat data
-    var flatData = [];
+    var extendedData = [];
 
     // Loop through months
     //-------------------
@@ -679,6 +678,7 @@ function extendData(data){
                     subcategory.successful = subcategorySuccessful;
                     subcategory.total = subcategoryFailed + subcategorySuccessful;
                     subcategory.percentile = ((subcategorySuccessful / (subcategoryFailed + subcategorySuccessful)) * 100).toFixed(2);
+
                 });
 
                 // Adds total per category
@@ -688,11 +688,11 @@ function extendData(data){
                     category.monthnum = month.monthnum;
                     category.categorynum = categoryNames[categoryIndex].id;
                     category.categoryname = categoryNames[categoryIndex].name;
-                    flatData.push(category);
+                    extendedData.push(category);
                 }
 
                 // Push data to flat list
-                flatData.push(subcategory);
+                extendedData.push(subcategory);
 
                 // Assign totals to categories
                 categoryFailed = categoryFailed + subcategory.failed;
@@ -709,66 +709,99 @@ function extendData(data){
         });
     });
 
-    // Merge duplicates in arrays
-    dsMonthNames = _.uniqBy(dsMonthNames);
-    dsCategoryNames = _.uniqBy(dsCategoryNames);
-
     // Send data to visualisation
-    createVisualisation(data, flatData, dsMonthNames, dsCategoryNames);
-
-    console.log(flatData);
+    createVisualisation(extendedData);
 
 }
 
 // Create visualization
-function createVisualisation(rawdata, flatData, months, categories, subcategories) {
+function createVisualisation(data) {
 
     // Create Canvas
-    var canvasMargin = {top: 25, right: 25, bottom: 75, left: 75},
-        canvasWidth = 960 - canvasMargin.left - canvasMargin.right,
-        canvasHeight = 5610 - canvasMargin.top - canvasMargin.bottom,
-        barPadding = 10,
-        barWidth = barWidth = Math.floor(canvasWidth / 12) - 1,
+    var canvasWidth = 1200,
+        cardWidth = canvasWidth / 12,
+        canvasWidthTotal = canvasWidth + cardWidth,
+        cardHeight = cardWidth/2,
+        canvasMargin = {top: 0, right: 0, bottom: cardWidth, left: cardWidth},
+        canvasHeight = (cardHeight * 166) + cardHeight,
         colors = ["#ff0000"],
         gridSize = Math.floor(canvasWidth / 24);
 
     var canvas = d3.select("body")
         .append("svg")
-        .attr("width", canvasWidth + canvasMargin.left + canvasMargin.right)
-        .attr("height", canvasHeight + canvasMargin.top + canvasMargin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + canvasMargin.left + "," + canvasMargin.top + ")");
+        .attr("width", canvasWidthTotal)
+        .attr("height", canvasHeight);
 
-    // Creates the xAxis
+    // Create each element
+    var cards = canvas.selectAll(".cards")
+    .data(data, function(d) {
+        return d.monthnum, d.categorynum;
+    });
+
+    cards.enter()
+        .append("rect")
+        .attr("x", function(d) { return (d.monthnum * cardWidth) + cardWidth; })
+        .attr("y", function(d) { return (d.categorynum * cardHeight); })
+        .attr("class", function(d) { return (d.main) })
+        .attr("width", cardWidth)
+        .attr("height", cardHeight)
+        .style("fill", colors[0])
+        .style("opacity", function(d) { return (d.percentile / 100)})
+
+function eliminateDuplicates(arr) {
+    var i,
+        len=arr.length,
+        out=[],
+        obj={};
+
+    for (i=0;i<len;i++) {
+        obj[arr[i]]=0;
+    }
+    for (i in obj) {
+        out.push(i);
+    }
+return out;
+}
+    // Create the y axis
+    var categoryNames = [];
+    cards.enter()
+        .append("text")
+        .text(function(d, i) {
+
+            // Check if the category has already b
+            if (categoryNames.indexOf(d.categorynum) === -1) {
+                categoryNames.push(d.categorynum)
+                return d.categoryname;
+            }
+
+        })
+        .attr("x", function(d) { return (cardWidth / 2); })
+        .attr("y", function(d) { return (d.categorynum * cardHeight) + (cardHeight/2); })
+        .attr("text-anchor","middle")
+        .attr("font-family","sans-serif")
+        .attr("font-size","10px")
+
+    // Create the x axis
+    var monthNames = [],
+        month = canvas.selectAll(".month")
+    .data(data, function(d) {
+        monthNames.push(d.monthname);
+        return
+    }),
+    monthNames = _.uniqBy(monthNames);
     canvas.selectAll(".month")
-        .data(months)
+        .data(monthNames)
         .enter()
         .append("text")
         .text(function(d) {
             return d;
         })
         .attr("x", function(d, i) {
-            return i * (canvasWidth / months.length) + (barWidth);
+            return (cardWidth * i) + (cardWidth * 1.5);
         })
-        .attr("y", canvasHeight + (canvasMargin.bottom / 2))
+        .attr("y", canvasHeight -(cardHeight / 2))
         .attr("text-anchor","middle")
         .attr("font-family","sans-serif")
         .attr("font-size","10px")
-
-    var cards = canvas.selectAll(".hour")
-    .data(flatData, function(d) {
-        return d.monthnum+':'+d.categorynum;
-    });
-
-    cards.enter().append("rect")
-              .attr("x", function(d) { return (d.monthnum - 1) * gridSize; })
-              .attr("y", function(d) { return (d.categorynum - 1) * gridSize; })
-              .attr("rx", 4)
-              .attr("ry", 4)
-              .attr("class", function(d) { return (d.main) })
-              .attr("width", '34')
-              .attr("height", '34')
-             .style("fill", colors[0])
-             .style("opacity", function(d) { return (d.percentile / 100)})
 
 }
