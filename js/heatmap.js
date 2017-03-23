@@ -723,7 +723,7 @@ function createVisualisation(data) {
         canvasWidthTotal = canvasWidth + (cardWidth * 2),
         cardHeight = 20,
         canvasMargin = {top: 0, right: 0, bottom: cardWidth, left: cardWidth},
-        canvasHeight = (cardHeight * 35) + cardHeight,
+        canvasHeight = (cardHeight * 35),
         gridSize = Math.floor(canvasWidth / 24);
 
     var canvas = d3.select("body")
@@ -807,7 +807,7 @@ function bindEvents() {
     for (var i = 0; i < cards.length ; i++) {
         cards[i].addEventListener('click',
             function () {
-                if (!this.classList.contains(activeClass)) {
+                if (!this.classList.contains(activeClass) && !this.classList.contains('subcategory')) {
                     changeStates(this.classList[this.classList.length - 1], canvas, cards, axis);
                     highlightCategory(this.classList[this.classList.length - 1]);
                 }
@@ -830,251 +830,123 @@ function bindEvents() {
 
 function changeStates(state, canvas, cards, axis) {
 
-    console.log(state);
-
-    // This should be done with CSS, however the Y position on <text> els doesn't work yet...
-    var cardHeight = 20;
-
-    // Functions to set positions
-    function setCardX(position) {
-        var newPosition = ((position * cardHeight) + cardHeight);
-        return newPosition;
-    }
-
-    function setAxisX(position) {
-        var newPosition = ((position * cardHeight) + (cardHeight * 1.5));
-        return newPosition;
-    }
-
     // Add default state
     canvas.id = state;
 
-    // cat-all
-    if (canvas.id === 'cat-all') {
+    var cardHeight = 20,
+        categories = ['cat-0', 'cat-13', 'cat-19', 'cat-24', 'cat-31', 'cat-40', 'cat-53', 'cat-73', 'cat-81', 'cat-87', 'cat-105', 'cat-112', 'cat-128', 'cat-135', 'cat-151'];
 
-        _.map(cards, function (el, i) {
+    // Assigns subcatgories to categoreis
+    function filterSubcategories() {
 
-            switch (el.classList[el.classList.length - 1]) {
-                case 'cat-0':
-                    el.setAttribute("y", setCardX(0));
-                    break
-                case 'cat-13':
-                    el.setAttribute("y", setCardX(1));
-                    break
-                case 'cat-19':
-                    el.setAttribute("y", setCardX(2));
-                    break
-                case 'cat-24':
-                    el.setAttribute("y", setCardX(3));
-                    break
-                case 'cat-31':
-                    el.setAttribute("y", setCardX(4));
-                    break
-                case 'cat-40':
-                    el.setAttribute("y", setCardX(5));
-                    break
-                case 'cat-53':
-                    el.setAttribute("y", setCardX(6));
-                    break
-                case 'cat-73':
-                    el.setAttribute("y", setCardX(7));
-                    break
-                case 'cat-81':
-                    el.setAttribute("y", setCardX(8));
-                    break
-                case 'cat-87':
-                    el.setAttribute("y", setCardX(9));
-                    break
-                case 'cat-105':
-                    el.setAttribute("y", setCardX(10));
-                    break
-                case 'cat-112':
-                    el.setAttribute("y", setCardX(11));
-                    break
-                case 'cat-128':
-                    el.setAttribute("y", setCardX(12));
-                    break
-                case 'cat-135':
-                    el.setAttribute("y", setCardX(13));
-                    break
-                case 'cat-151':
-                    el.setAttribute("y", setCardX(14));
-                    break
-                default:
-                    el.setAttribute("y", cardHeight * -2);
-            }
-
-        });
-
-        _.map(axis, function (el, i) {
-
-            switch (el.classList[el.classList.length - 1]) {
-                case 'cat-0':
-                    el.setAttribute("y", setAxisX(0));
-                    break
-                case 'cat-13':
-                    el.setAttribute("y", setAxisX(1));
-                    break
-                case 'cat-19':
-                    el.setAttribute("y", setAxisX(2));
-                    break
-                case 'cat-24':
-                    el.setAttribute("y", setAxisX(3));
-                    break
-                case 'cat-31':
-                    el.setAttribute("y", setAxisX(4));
-                    break
-                case 'cat-40':
-                    el.setAttribute("y", setAxisX(5));
-                    break
-                case 'cat-53':
-                    el.setAttribute("y", setAxisX(6));
-                    break
-                case 'cat-73':
-                    el.setAttribute("y", setAxisX(7));
-                    break
-                case 'cat-81':
-                    el.setAttribute("y", setAxisX(8));
-                    break
-                case 'cat-87':
-                    el.setAttribute("y", setAxisX(9));
-                    break
-                case 'cat-105':
-                    el.setAttribute("y", setAxisX(10));
-                    break
-                case 'cat-112':
-                    el.setAttribute("y", setAxisX(11));
-                    break
-                case 'cat-128':
-                    el.setAttribute("y", setAxisX(12));
-                    break
-                case 'cat-135':
-                    el.setAttribute("y", setAxisX(13));
-                    break
-                case 'cat-151':
-                    el.setAttribute("y", setAxisX(14));
-                    break
-                default:
-                    el.setAttribute("y", (0 * cardHeight) - (cardHeight * 2));
-            }
-        });
+        switch (canvas.id) {
+            case 'cat-all':
+                repositionVisuals(categories);
+                break
+            case categories[0]:
+                repositionVisuals(['cat-0', 'cat-1', 'cat-2', 'cat-3', 'cat-4', 'cat-5', 'cat-6', 'cat-7', 'cat-8', 'cat-9', 'cat-10', 'cat-11', 'cat-12']);
+                break
+            case categories[1]:
+                repositionVisuals(['cat-13', 'cat-14', 'cat-15', 'cat-16', 'cat-17', 'cat-18']);
+                break
+            case categories[2]:
+                repositionVisuals(['cat-19', 'cat-20', 'cat-21', 'cat-22', 'cat-23']);
+                break
+            case categories[3]:
+                repositionVisuals(['cat-24', 'cat-25', 'cat-26', 'cat-27', 'cat-28', 'cat-29', 'cat-30']);
+                break
+            case categories[4]:
+                repositionVisuals(['cat-31', 'cat-32', 'cat-33', 'cat-34', 'cat-35', 'cat-36', 'cat-37', 'cat-38', 'cat-39']);
+                break
+            case categories[5]:
+                repositionVisuals(['cat-40', 'cat-41', 'cat-42', 'cat-43', 'cat-44', 'cat-45', 'cat-46', 'cat-47', 'cat-48', 'cat-49', 'cat-50', 'cat-51', 'cat-52']);
+                break
+            case categories[6]:
+                repositionVisuals(['cat-53', 'cat-54', 'cat-55', 'cat-56', 'cat-57', 'cat-58', 'cat-59', 'cat-60', 'cat-61', 'cat-62', 'cat-63', 'cat-64', 'cat-65', 'cat-66', 'cat-67', 'cat-68', 'cat-69', 'cat-70', 'cat-71', 'cat-72']);
+                break
+            case categories[7]:
+                repositionVisuals(['cat-73', 'cat-74', 'cat-75', 'cat-76', 'cat-77', 'cat-78', 'cat-79', 'cat-80']);
+                break
+            case categories[8]:
+                repositionVisuals(['cat-81', 'cat-82', 'cat-83', 'cat-84', 'cat-85', 'cat-86']);
+                break
+            case categories[9]:
+                repositionVisuals(['cat-87', 'cat-88', 'cat-89', 'cat-90', 'cat-91', 'cat-92', 'cat-93', 'cat-94', 'cat-95', 'cat-96', 'cat-97', 'cat-98', 'cat-99', 'cat-100', 'cat-101', 'cat-102', 'cat-103', 'cat-104']);
+                break
+            case categories[10]:
+                repositionVisuals(['cat-105', 'cat-106', 'cat-107', 'cat-108', 'cat-109', 'cat-110', 'cat-111']);
+                break
+            case categories[11]:
+                repositionVisuals(['cat-112', 'cat-113', 'cat-114', 'cat-115', 'cat-116', 'cat-117', 'cat-118', 'cat-119', 'cat-120', 'cat-121', 'cat-122', 'cat-123', 'cat-124', 'cat-125', 'cat-126', 'cat-127']);
+                break
+            case categories[12]:
+                repositionVisuals(['cat-128', 'cat-129', 'cat-130', 'cat-131', 'cat-132', 'cat-133', 'cat-134']);
+                break
+            case categories[13]:
+                repositionVisuals(['cat-135', 'cat-136', 'cat-137', 'cat-138', 'cat-139', 'cat-140', 'cat-141', 'cat-142', 'cat-143', 'cat-144', 'cat-145', 'cat-146', 'cat-147', 'cat-148', 'cat-149', 'cat-150']);
+                break
+            case categories[14]:
+                repositionVisuals(['cat-151', 'cat-152', 'cat-153', 'cat-154', 'cat-155', 'cat-156', 'cat-157', 'cat-158', 'cat-159', 'cat-160', 'cat-161', 'cat-162', 'cat-163', 'cat-164', 'cat-165']);
+                break
+            default:
+                cat.setAttribute("y", cardHeight * -2); // Hides blocks when they aren't in the category
+        }
     }
 
-    // Art category
-    if (canvas.id === 'cat-0') {
+    // Run filtering
+    filterSubcategories();
 
+    // Moves the svg data elements
+    function repositionVisuals(subcategories) {
 
-        _.map(cards, function (el, i) {
+        // Merge categories & subcategories
+        // TODO: Need to somehow order these so subcategories are renedered inbetween the categories
+        // instead of at the end
+        var totalCategories = d3.merge([categories, subcategories]),
+            totalCategories = _.uniqBy(totalCategories);
 
-            var artSubCats = ['cat-1', 'cat-2', 'cat-3', 'cat-4', 'cat-5', 'cat-6', 'cat-7', 'cat-8', 'cat-9', 'cat-10', 'cat-11', 'cat-12', 'cat-13'];
-            if (el.classList.contains(artSubCats[0], artSubCats[1])) {
-                console.log('found');
-                // Check here http://stackoverflow.com/questions/6391448/how-to-apply-an-array-of-classes-to-classlist-contains
-            }
+        // Loop through cards
+        _.map(cards, function (el) {
 
-            switch (el.classList[el.classList.length - 1]) {
-                case 'cat-0':
-                    el.setAttribute("y", setCardX(0));
-                    break
-                case 'cat-13':
-                    el.setAttribute("y", setCardX(1 + 12));
-                    break
-                case 'cat-19':
-                    el.setAttribute("y", setCardX(2 + 12));
-                    break
-                case 'cat-24':
-                    el.setAttribute("y", setCardX(3 + 12));
-                    break
-                case 'cat-31':
-                    el.setAttribute("y", setCardX(4 + 12));
-                    break
-                case 'cat-40':
-                    el.setAttribute("y", setCardX(5 + 12));
-                    break
-                case 'cat-53':
-                    el.setAttribute("y", setCardX(6 + 12));
-                    break
-                case 'cat-73':
-                    el.setAttribute("y", setCardX(7 + 12));
-                    break
-                case 'cat-81':
-                    el.setAttribute("y", setCardX(8 + 12));
-                    break
-                case 'cat-87':
-                    el.setAttribute("y", setCardX(9 + 12));
-                    break
-                case 'cat-105':
-                    el.setAttribute("y", setCardX(10 + 12));
-                    break
-                case 'cat-112':
-                    el.setAttribute("y", setCardX(11 + 12));
-                    break
-                case 'cat-128':
-                    el.setAttribute("y", setCardX(12 + 12));
-                    break
-                case 'cat-135':
-                    el.setAttribute("y", setCardX(13 + 12));
-                    break
-                case 'cat-151':
-                    el.setAttribute("y", setCardX(14 + 12));
-                    break
-                default:
-                    el.setAttribute("y", cardHeight * -2);
-            }
+            // Hide all elements by default
+            el.setAttribute("y", -cardHeight);
+
+            // Loops through [subcategories] if element is part of the main category
+            Array.prototype.forEach.call(totalCategories, function(c, i){
+
+                // Gets the position from the position in the loop
+                var position = i;
+
+                // If it contains the correct class, move it into view
+                if (el.classList.contains(c)) {
+                    el.setAttribute("y", ((position * cardHeight) + cardHeight));
+                }
+
+            });
 
         });
 
-        _.map(axis, function (el, i) {
+        // Loop through axis
+        _.map(axis, function (el) {
 
-            switch (el.classList[el.classList.length - 1]) {
-                case 'cat-0':
-                    el.setAttribute("y", setAxisX(0));
-                    break
-                case 'cat-13':
-                    el.setAttribute("y", setAxisX(1 + 12));
-                    break
-                case 'cat-19':
-                    el.setAttribute("y", setAxisX(2 + 12));
-                    break
-                case 'cat-24':
-                    el.setAttribute("y", setAxisX(3 + 12));
-                    break
-                case 'cat-31':
-                    el.setAttribute("y", setAxisX(4 + 12));
-                    break
-                case 'cat-40':
-                    el.setAttribute("y", setAxisX(5 + 12));
-                    break
-                case 'cat-53':
-                    el.setAttribute("y", setAxisX(6 + 12));
-                    break
-                case 'cat-73':
-                    el.setAttribute("y", setAxisX(7 + 12));
-                    break
-                case 'cat-81':
-                    el.setAttribute("y", setAxisX(8 + 12));
-                    break
-                case 'cat-87':
-                    el.setAttribute("y", setAxisX(9 + 12));
-                    break
-                case 'cat-105':
-                    el.setAttribute("y", setAxisX(10 + 12));
-                    break
-                case 'cat-112':
-                    el.setAttribute("y", setAxisX(11 + 12));
-                    break
-                case 'cat-128':
-                    el.setAttribute("y", setAxisX(12 + 12));
-                    break
-                case 'cat-135':
-                    el.setAttribute("y", setAxisX(13 + 12));
-                    break
-                case 'cat-151':
-                    el.setAttribute("y", setAxisX(14 + 12));
-                    break
-                default:
-                    el.setAttribute("y", (0 * cardHeight) - (cardHeight * 2));
-            }
+            // Hide all elements by default
+            el.setAttribute("y", -cardHeight);
+
+            // Loops through [subcategories] if element is part of the main category
+            Array.prototype.forEach.call(totalCategories, function(c, i){
+
+                // Gets the position from the position in the loop
+                var position = i;
+
+                // If it contains the correct class, move it
+                if (el.classList.contains(c)) {
+                    el.setAttribute("y", ((position * cardHeight) + (cardHeight * 1.5)));
+                }
+
+            });
+
         });
+
     }
+
 }
