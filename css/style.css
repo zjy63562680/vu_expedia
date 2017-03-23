@@ -1,5 +1,54 @@
 @import url('reset.css');
 
-html {
-    
+.heatmap text {
+    font-family: sans-serif;
+    font-size: 10px;
+    alignment-baseline: middle;
+}
+
+.heatmap text.axis-x {
+    text-anchor: middle;
+}
+
+.heatmap text.axis-y {
+    text-anchor: end;
+}
+
+.heatmap rect {
+    color: black;
+    fill: black;
+}
+
+.heatmap .category:not(text) {
+    fill: blue;
+}
+
+.heatmap rect.active,
+.heatmap text.active {
+    fill: red;
+    color: red;
+}
+
+
+/*
+.heatmap .category.cat-0 {y: 0 }
+.heatmap .category.cat-13 {y: 25;}
+.heatmap .category.cat-19 {y: 50;}
+.heatmap .category.cat-24 {y: 75;}
+.heatmap .category.cat-31 {y: 100;}
+.heatmap .category.cat-40 {y: 125;}
+.heatmap .category.cat-53 {y: 150;}
+.heatmap .category.cat-73 {y: 175;}
+.heatmap .category.cat-81 {y: 200;}
+.heatmap .category.cat-87 {y: 225;}
+.heatmap .category.cat-105 {y: 250;}
+.heatmap .category.cat-112 {y: 275;}
+.heatmap .category.cat-128 {y: 300;}
+.heatmap .category.cat-135 {y: 325;}
+.heatmap .category.cat-151 {y: 350;}
+*/
+
+
+.heatmap .card:hover {
+    cursor: pointer;
 }

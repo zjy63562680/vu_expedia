@@ -1,7 +1,7 @@
 d3.queue()
 
-    .defer(d3.csv, "data/_failed.csv")
-    .defer(d3.csv, "data/_succes.csv")
+    .defer(d3.csv, 'data/_failed.csv')
+    .defer(d3.csv, 'data/_succes.csv')
     .await(onDataLoaded);
 
 function onDataLoaded(error, dataSucess, dataFailed) {
@@ -34,19 +34,19 @@ function structureData(data) {
 
        // Nest by category
        .key(function(d) {
-           d.parentid = d["category/parent_id"];
+           d.parentid = d['category/parent_id'];
            return d.parentid;
        }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
 
        // Nest by subcategory
        .key(function(d) {
-           d.categoryid = d["category/id"];
+           d.categoryid = d['category/id'];
            return d.categoryid;
        }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
 
        // Nest by state (successful / failed)
        .key(function(d) {
-           return d["state"];
+           return d['state'];
        })
 
    .entries(data);
@@ -647,7 +647,6 @@ function extendData(data){
                 categoryTotal      = 0,
                 categoryPercentage = 0;
 
-
             // Loop through subcategories
             //-------------------
             _.map(category.values, function (subcategory, i) {
@@ -670,6 +669,7 @@ function extendData(data){
                         subcategoryFailed = state.values.length;
                     }
 
+                    subcategory.type = "subcategory";
                     subcategory.monthname = month.monthname;
                     subcategory.monthnum = month.monthnum;
                     subcategory.categorynum = state.values[0].categoryid;
@@ -683,7 +683,7 @@ function extendData(data){
 
                 // Adds total per category
                 if (i === 0) {
-                    category.type = "main";
+                    category.type = "category";
                     category.monthname = month.monthname;
                     category.monthnum = month.monthnum;
                     category.categorynum = categoryNames[categoryIndex].id;
@@ -718,19 +718,19 @@ function extendData(data){
 function createVisualisation(data) {
 
     // Create Canvas
-    var canvasWidth = 1200,
+    var canvasWidth = 800,
         cardWidth = canvasWidth / 12,
-        canvasWidthTotal = canvasWidth + cardWidth,
-        cardHeight = cardWidth/2,
+        canvasWidthTotal = canvasWidth + (cardWidth * 2),
+        cardHeight = 20,
         canvasMargin = {top: 0, right: 0, bottom: cardWidth, left: cardWidth},
-        canvasHeight = (cardHeight * 166) + cardHeight,
-        colors = ["#ff0000"],
+        canvasHeight = (cardHeight * 35) + cardHeight,
         gridSize = Math.floor(canvasWidth / 24);
 
     var canvas = d3.select("body")
         .append("svg")
         .attr("width", canvasWidthTotal)
-        .attr("height", canvasHeight);
+        .attr("height", canvasHeight)
+        .attr("class", "heatmap")
 
     // Create each element
     var cards = canvas.selectAll(".cards")
@@ -740,28 +740,15 @@ function createVisualisation(data) {
 
     cards.enter()
         .append("rect")
-        .attr("x", function(d) { return (d.monthnum * cardWidth) + cardWidth; })
-        .attr("y", function(d) { return (d.categorynum * cardHeight); })
-        .attr("class", function(d) { return (d.main) })
+        .attr("x", function(d) { return (d.monthnum * cardWidth) + (cardWidth * 2); })
+        .attr("y", function(d) { return (d.categorynum * cardHeight) + (cardHeight); })
+        .attr("class", function(d) {
+            return d.type + ' card cat-' + d.categorynum
+        })
         .attr("width", cardWidth)
         .attr("height", cardHeight)
-        .style("fill", colors[0])
         .style("opacity", function(d) { return (d.percentile / 100)})
 
-function eliminateDuplicates(arr) {
-    var i,
-        len=arr.length,
-        out=[],
-        obj={};
-
-    for (i=0;i<len;i++) {
-        obj[arr[i]]=0;
-    }
-    for (i in obj) {
-        out.push(i);
-    }
-return out;
-}
     // Create the y axis
     var categoryNames = [];
     cards.enter()
@@ -775,11 +762,11 @@ return out;
             }
 
         })
-        .attr("x", function(d) { return (cardWidth / 2); })
-        .attr("y", function(d) { return (d.categorynum * cardHeight) + (cardHeight/2); })
-        .attr("text-anchor","middle")
-        .attr("font-family","sans-serif")
-        .attr("font-size","10px")
+        .attr("x", function(d) { return (cardWidth * 2) - 5; })
+        .attr("y", function(d) { return (d.categorynum * cardHeight) + (cardHeight * 1.5); })
+        .attr("class", function(d) {
+            return d.type + ' axis-y cat-' + d.categorynum
+        })
 
     // Create the x axis
     var monthNames = [],
@@ -797,11 +784,297 @@ return out;
             return d;
         })
         .attr("x", function(d, i) {
-            return (cardWidth * i) + (cardWidth * 1.5);
+            return (cardWidth * i) + (cardWidth * 2.5);
         })
-        .attr("y", canvasHeight -(cardHeight / 2))
-        .attr("text-anchor","middle")
-        .attr("font-family","sans-serif")
-        .attr("font-size","10px")
+        .attr("y", cardHeight / 2)
+        .attr("class","axis-x")
 
+    // Bind events
+    bindEvents()
+}
+
+// Interactions
+function bindEvents() {
+
+    var canvas = document.getElementsByClassName('heatmap')[0],
+        cards = canvas.getElementsByClassName('card'),
+        axis = canvas.getElementsByClassName('axis-y'),
+        activeClass = 'active',
+        state = 'cat-all';
+
+    changeStates(state, canvas, cards, axis);
+
+    for (var i = 0; i < cards.length ; i++) {
+        cards[i].addEventListener('click',
+            function () {
+                if (!this.classList.contains(activeClass)) {
+                    changeStates(this.classList[this.classList.length - 1], canvas, cards, axis);
+                    highlightCategory(this.classList[this.classList.length - 1]);
+                }
+            }, false);
+    }
+
+    function highlightCategory(selector) {
+        var $activeCategory = canvas.getElementsByClassName(selector);
+        _.map(cards, function (el, i) {
+            el.classList.remove(activeClass);
+        });
+        _.map(axis, function (el, i) {
+            el.classList.remove(activeClass);
+        });
+        _.map($activeCategory, function (el, i) {
+            el.classList.add(activeClass);
+        });
+    }
+}
+
+function changeStates(state, canvas, cards, axis) {
+
+    console.log(state);
+
+    // This should be done with CSS, however the Y position on <text> els doesn't work yet...
+    var cardHeight = 20;
+
+    // Functions to set positions
+    function setCardX(position) {
+        var newPosition = ((position * cardHeight) + cardHeight);
+        return newPosition;
+    }
+
+    function setAxisX(position) {
+        var newPosition = ((position * cardHeight) + (cardHeight * 1.5));
+        return newPosition;
+    }
+
+    // Add default state
+    canvas.id = state;
+
+    // cat-all
+    if (canvas.id === 'cat-all') {
+
+        _.map(cards, function (el, i) {
+
+            switch (el.classList[el.classList.length - 1]) {
+                case 'cat-0':
+                    el.setAttribute("y", setCardX(0));
+                    break
+                case 'cat-13':
+                    el.setAttribute("y", setCardX(1));
+                    break
+                case 'cat-19':
+                    el.setAttribute("y", setCardX(2));
+                    break
+                case 'cat-24':
+                    el.setAttribute("y", setCardX(3));
+                    break
+                case 'cat-31':
+                    el.setAttribute("y", setCardX(4));
+                    break
+                case 'cat-40':
+                    el.setAttribute("y", setCardX(5));
+                    break
+                case 'cat-53':
+                    el.setAttribute("y", setCardX(6));
+                    break
+                case 'cat-73':
+                    el.setAttribute("y", setCardX(7));
+                    break
+                case 'cat-81':
+                    el.setAttribute("y", setCardX(8));
+                    break
+                case 'cat-87':
+                    el.setAttribute("y", setCardX(9));
+                    break
+                case 'cat-105':
+                    el.setAttribute("y", setCardX(10));
+                    break
+                case 'cat-112':
+                    el.setAttribute("y", setCardX(11));
+                    break
+                case 'cat-128':
+                    el.setAttribute("y", setCardX(12));
+                    break
+                case 'cat-135':
+                    el.setAttribute("y", setCardX(13));
+                    break
+                case 'cat-151':
+                    el.setAttribute("y", setCardX(14));
+                    break
+                default:
+                    el.setAttribute("y", cardHeight * -2);
+            }
+
+        });
+
+        _.map(axis, function (el, i) {
+
+            switch (el.classList[el.classList.length - 1]) {
+                case 'cat-0':
+                    el.setAttribute("y", setAxisX(0));
+                    break
+                case 'cat-13':
+                    el.setAttribute("y", setAxisX(1));
+                    break
+                case 'cat-19':
+                    el.setAttribute("y", setAxisX(2));
+                    break
+                case 'cat-24':
+                    el.setAttribute("y", setAxisX(3));
+                    break
+                case 'cat-31':
+                    el.setAttribute("y", setAxisX(4));
+                    break
+                case 'cat-40':
+                    el.setAttribute("y", setAxisX(5));
+                    break
+                case 'cat-53':
+                    el.setAttribute("y", setAxisX(6));
+                    break
+                case 'cat-73':
+                    el.setAttribute("y", setAxisX(7));
+                    break
+                case 'cat-81':
+                    el.setAttribute("y", setAxisX(8));
+                    break
+                case 'cat-87':
+                    el.setAttribute("y", setAxisX(9));
+                    break
+                case 'cat-105':
+                    el.setAttribute("y", setAxisX(10));
+                    break
+                case 'cat-112':
+                    el.setAttribute("y", setAxisX(11));
+                    break
+                case 'cat-128':
+                    el.setAttribute("y", setAxisX(12));
+                    break
+                case 'cat-135':
+                    el.setAttribute("y", setAxisX(13));
+                    break
+                case 'cat-151':
+                    el.setAttribute("y", setAxisX(14));
+                    break
+                default:
+                    el.setAttribute("y", (0 * cardHeight) - (cardHeight * 2));
+            }
+        });
+    }
+
+    // Art category
+    if (canvas.id === 'cat-0') {
+
+
+        _.map(cards, function (el, i) {
+
+            var artSubCats = ['cat-1', 'cat-2', 'cat-3', 'cat-4', 'cat-5', 'cat-6', 'cat-7', 'cat-8', 'cat-9', 'cat-10', 'cat-11', 'cat-12', 'cat-13'];
+            if (el.classList.contains(artSubCats[0], artSubCats[1])) {
+                console.log('found');
+                // Check here http://stackoverflow.com/questions/6391448/how-to-apply-an-array-of-classes-to-classlist-contains
+            }
+
+            switch (el.classList[el.classList.length - 1]) {
+                case 'cat-0':
+                    el.setAttribute("y", setCardX(0));
+                    break
+                case 'cat-13':
+                    el.setAttribute("y", setCardX(1 + 12));
+                    break
+                case 'cat-19':
+                    el.setAttribute("y", setCardX(2 + 12));
+                    break
+                case 'cat-24':
+                    el.setAttribute("y", setCardX(3 + 12));
+                    break
+                case 'cat-31':
+                    el.setAttribute("y", setCardX(4 + 12));
+                    break
+                case 'cat-40':
+                    el.setAttribute("y", setCardX(5 + 12));
+                    break
+                case 'cat-53':
+                    el.setAttribute("y", setCardX(6 + 12));
+                    break
+                case 'cat-73':
+                    el.setAttribute("y", setCardX(7 + 12));
+                    break
+                case 'cat-81':
+                    el.setAttribute("y", setCardX(8 + 12));
+                    break
+                case 'cat-87':
+                    el.setAttribute("y", setCardX(9 + 12));
+                    break
+                case 'cat-105':
+                    el.setAttribute("y", setCardX(10 + 12));
+                    break
+                case 'cat-112':
+                    el.setAttribute("y", setCardX(11 + 12));
+                    break
+                case 'cat-128':
+                    el.setAttribute("y", setCardX(12 + 12));
+                    break
+                case 'cat-135':
+                    el.setAttribute("y", setCardX(13 + 12));
+                    break
+                case 'cat-151':
+                    el.setAttribute("y", setCardX(14 + 12));
+                    break
+                default:
+                    el.setAttribute("y", cardHeight * -2);
+            }
+
+        });
+
+        _.map(axis, function (el, i) {
+
+            switch (el.classList[el.classList.length - 1]) {
+                case 'cat-0':
+                    el.setAttribute("y", setAxisX(0));
+                    break
+                case 'cat-13':
+                    el.setAttribute("y", setAxisX(1 + 12));
+                    break
+                case 'cat-19':
+                    el.setAttribute("y", setAxisX(2 + 12));
+                    break
+                case 'cat-24':
+                    el.setAttribute("y", setAxisX(3 + 12));
+                    break
+                case 'cat-31':
+                    el.setAttribute("y", setAxisX(4 + 12));
+                    break
+                case 'cat-40':
+                    el.setAttribute("y", setAxisX(5 + 12));
+                    break
+                case 'cat-53':
+                    el.setAttribute("y", setAxisX(6 + 12));
+                    break
+                case 'cat-73':
+                    el.setAttribute("y", setAxisX(7 + 12));
+                    break
+                case 'cat-81':
+                    el.setAttribute("y", setAxisX(8 + 12));
+                    break
+                case 'cat-87':
+                    el.setAttribute("y", setAxisX(9 + 12));
+                    break
+                case 'cat-105':
+                    el.setAttribute("y", setAxisX(10 + 12));
+                    break
+                case 'cat-112':
+                    el.setAttribute("y", setAxisX(11 + 12));
+                    break
+                case 'cat-128':
+                    el.setAttribute("y", setAxisX(12 + 12));
+                    break
+                case 'cat-135':
+                    el.setAttribute("y", setAxisX(13 + 12));
+                    break
+                case 'cat-151':
+                    el.setAttribute("y", setAxisX(14 + 12));
+                    break
+                default:
+                    el.setAttribute("y", (0 * cardHeight) - (cardHeight * 2));
+            }
+        });
+    }
 }
