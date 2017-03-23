@@ -1,54 +1,133 @@
-@import url('reset.css');
+/***********************************/
+/* OVERVIEW
+/***********************************/
 
-.heatmap text {
-    font-family: sans-serif;
-    font-size: 10px;
-    alignment-baseline: middle;
-}
-
-.heatmap text.axis-x {
-    text-anchor: middle;
-}
-
-.heatmap text.axis-y {
-    text-anchor: end;
-}
-
-.heatmap rect {
-    color: black;
-    fill: black;
-}
-
-.heatmap .category:not(text) {
-    fill: blue;
-}
-
-.heatmap rect.active,
-.heatmap text.active {
-    fill: red;
-    color: red;
-}
-
+/* COLORS */
+/**********/
+/* We should all use the same colors for our visualizations */
 
 /*
-.heatmap .category.cat-0 {y: 0 }
-.heatmap .category.cat-13 {y: 25;}
-.heatmap .category.cat-19 {y: 50;}
-.heatmap .category.cat-24 {y: 75;}
-.heatmap .category.cat-31 {y: 100;}
-.heatmap .category.cat-40 {y: 125;}
-.heatmap .category.cat-53 {y: 150;}
-.heatmap .category.cat-73 {y: 175;}
-.heatmap .category.cat-81 {y: 200;}
-.heatmap .category.cat-87 {y: 225;}
-.heatmap .category.cat-105 {y: 250;}
-.heatmap .category.cat-112 {y: 275;}
-.heatmap .category.cat-128 {y: 300;}
-.heatmap .category.cat-135 {y: 325;}
-.heatmap .category.cat-151 {y: 350;}
-*/
+ * --- PRIMARY
+ * #FF5252
+ * rgba(255, 82, 82, 1)
+ *
+ * --- SECONDARY
+ * #009688
+ * rgba(0, 150, 136, 1)
+ *
+ * --- TERTIARY
+ * #59CD90
+ * rgba(89, 205, 144, 1)
+ */
+
+/***********************************/
+/* SPECIFIC VISUALIZATION  STYLES
+/***********************************/
 
 
-.heatmap .card:hover {
-    cursor: pointer;
+
+/***********************************/
+/* TEMPLATE STYLES
+/***********************************/
+
+.mdl-card {
+    width: 100%;
+    margin-bottom: 20px;
+    min-height: 100px;
+}
+.mdl-layout__drawer {
+    display: none;
+}
+
+/* Heading */
+.cust-nav {
+    position: fixed;
+    height: 115px;
+    z-index: 2;
+}
+
+.cust-nav .mdl-layout__tab-bar {
+    background-color: #ececec;
+}
+
+.cust-nav .mdl-layout__drawer-button {
+    display: none;
+}
+
+.cust-nav .mdl-layout__content {
+    display: none; /* Hide this */
+}
+
+.cust-nav .mdl-layout__header-row {
+    padding: 0 16px;
+}
+
+.cust-nav .mdl-button {
+    margin: 8px;
+}
+
+.cust-nav .mdl-textfield__label {
+    color: #fff;
+}
+
+.cust-nav .is-dirty .mdl-textfield__label {
+    color: #ececec;
+}
+
+.cust-nav .mdl-textfield__input {
+    border-color: #fff;
+}
+
+.cust-nav .mdl-textfield__label:after {
+    background-color: #ff5252;
+}
+
+.cust-nav .mdl-layout__tab-bar-button {
+    display: none;
+}
+
+.cust-nav .mdl-layout__tab-bar {
+    padding: 0 16px;
+    width: 100%;
+}
+
+/* Tabs */
+.cust-tab,
+.mdl-layout.is-upgraded .mdl-layout__tab.is-active.cust-tab.is-active {
+    color: #000;
+}
+
+/* Content */
+.cust-content {
+    padding: 120px 0 480px;
+}
+
+/* Aside bar */
+.cust-aside {
+    position: fixed;
+    top: 120px;
+    right: 4px;
+}
+
+/* Overview cards in aside*/
+.cust-overview {
+    width: 100%;
+    height: 135px;
+    background: #ececec
+}
+
+.cust-overview h2 {
+    padding: 8px 16px;
+}
+
+.cust-aside .mdl-card {
+    max-height: calc((100% - 200px) / 4)
+}
+
+/* Visualization wrappers */
+.cust-viz {
+    width: 100%;
+    height: auto;
+    background-color: #ececec;
+    min-height: 400px;
 }
