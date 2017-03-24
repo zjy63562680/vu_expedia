@@ -24,7 +24,38 @@
 /* SPECIFIC VISUALIZATION  STYLES
 /***********************************/
 
+/* HEATMAP */
+.heatmap .axis-x {
+    text-anchor: middle;
+}
 
+.heatmap .axis-y {
+    text-anchor: end;
+}
+
+.heatmap text {
+    alignment-baseline: central;
+    font-size: 10px;
+    line-height: 1;
+}
+
+.heatmap text.active {
+    font-weight: bold;
+}
+
+.heatmap .card {
+    fill: #59CD90;
+    transition: fill 1s ease;
+}
+
+.heatmap .card.category {
+    fill: #009688;
+    cursor: pointer;
+}
+.heatmap .card.active {
+    fill: #FF5252;
+    cursor: default;
+}
 
 /***********************************/
 /* TEMPLATE STYLES
@@ -35,6 +66,7 @@
     margin-bottom: 20px;
     min-height: 100px;
 }
+
 .mdl-layout__drawer {
     display: none;
 }
