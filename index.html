@@ -10,13 +10,16 @@
         <link rel="stylesheet" type="text/css" href="css/style.css" media="all" />
 
         <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-        <script defer type="text/javascript" src="js/template.js"></script>
+        <script type="text/javascript" src="js/template.js"></script>
         <script type="text/javascript" src="js/d3.min.js"></script>
         <script type="text/javascript" src="js/lodash.min.js"></script>
+        <script
+          src="https://code.jquery.com/jquery-3.1.1.min.js"
+          integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+          crossorigin="anonymous"></script>
 
         <!-- Invididual visualizations -->
         <script defer type="text/javascript" src="jessica/js/heatmap.js"></script>
-
     </head>
     <body>
 
@@ -26,11 +29,11 @@
 
                 <div class="mdl-layout__header-row">
                     <div class="mdl-textfield mdl-js-textfield">
-                        <input class="mdl-textfield__input" type="text" id="sample1">
+                        <input class="mdl-textfield__input url-input" type="text" id="sample1">
                         <label class="mdl-textfield__label" for="sample1">Kickstarter URL...</label>
                     </div>
 
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-button--accent mdl-js-ripple-effect">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-button--accent mdl-js-ripple-effect submit">
                         Compare
                     </button>
                 </div>
@@ -38,7 +41,7 @@
                 <!-- Tabs -->
                 <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
                     <a href="#viz-1" class="cust-tab mdl-layout__tab is-active">Geographical Map</a>
-                    <a href="#viz-2" class="cust-tab mdl-layout__tab">Bar chart</a>
+                    <a href="#viz-2" class="cust-tab mdl-layout__tab">Bubble chart</a>
                     <a href="#viz-3" class="cust-tab mdl-layout__tab">Heat map</a>
                     <a href="#viz-4" class="cust-tab mdl-layout__tab">Line graph</a>
                 </div>
@@ -74,13 +77,14 @@
 
                 <div class="mdl-card mdl-shadow--2dp">
                     <div class="mdl-card__title mdl-card--expand">
-                        <h2 class="mdl-card__title-text">Bar chart</h2>
+                        <h2 class="mdl-card__title-text">Bubble chart</h2>
                     </div>
                     <div class="mdl-card__supporting-text">
                         Some description of the visualization, or just delete this parent div.
                     </div>
                     <div class="cust-viz viz-2">
                         <!--Put your visualization here-->
+                        <iframe class="bubble_chart" src="amaka/bubble_chart.html" height="500"></iframe>
                     </div>
                 </div>
 
