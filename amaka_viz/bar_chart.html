@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<head>
+<style>
+
+.axis .domain {
+  display: none;
+}
+
+.ticks {
+  font: 10px sans-serif;
+}
+
+.track,
+.track-inset,
+.track-overlay {
+  stroke-linecap: round;
+}
+
+.track {
+  stroke: #000;
+  stroke-opacity: 0.3;
+  stroke-width: 10px;
+}
+
+.track-inset {
+  stroke: #ddd;
+  stroke-width: 8px;
+}
+
+.track-overlay {
+  pointer-events: stroke;
+  stroke-width: 50px;
+  cursor: crosshair;
+}
+
+.handle {
+  fill: #fff;
+  stroke: #000;
+  stroke-opacity: 0.5;
+  stroke-width: 1.25px;
+}
+
+</style>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+</head>
+<body>
+<form action="/geturl" method="POST" enctype="multipart/form-data">
+<label >Enter your URL</label><input type="text" name="kickUrl">
+<input type="submit" value="Submit">
+</form>
+
+<svg width="960" height="500"></svg>
+<script>
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    height0 = +svg.attr("height") - 20,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var x0 = d3.scaleBand()
+    .rangeRound([0, width])
+    .paddingInner(0.1);
+
+var x1 = d3.scaleBand()
+    .padding(0.05);
+
+var y = d3.scaleLinear()
+    .rangeRound([height, 0]);
+
+var z = d3.scaleOrdinal()
+    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+var x = d3.scaleTime()
+      .domain([new Date(2016, 0, 1), new Date(2016, 11, 1)])
+      .range([0, width])
+      .clamp(true);
+
+var slider = svg.append("g")
+    .attr("class", "slider")
+    .attr("transform", "translate(" + margin.left + "," + height0 + ")");
+
+var arr = [];
+var ar = [];
+var a = [];
+var count = 0;
+var countEnd = 10000;
+var inc = 0;
+var b = {};
+var c = [];
+var d = [];
+var o = {};
+var format = d3.timeFormat('%B');
+var userCategory, userGoal, userCountry;
+
+
+
+
+
+d3.json("/europeFinal.json", function (datas) {
+  slider.append("line")
+    .attr("class", "track")
+    .attr("x1", x.range()[0])
+    .attr("x2", x.range()[1])
+  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-inset")
+  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-overlay")
+    .call(d3.drag()
+        .on("start.interrupt", function() { slider.interrupt(); })
+        .on("start drag", function() { hue(x.invert(d3.event.x)); }));
+
+slider.insert("g", ".track-overlay")
+    .attr("class", "ticks")
+    .attr("transform", "translate(0," + 18 + ")")
+  .selectAll("text")
+  .data(x.ticks(12))
+  .enter().append("text")
+    .attr("x", x)
+    .attr("text-anchor", "middle")
+    .text(function(d) {
+      return format(d); 
+    });
+
+var handle = slider.insert("circle", ".track-overlay")
+    .attr("class", "handle")
+    .attr("r", 9);
+
+slider.transition() // Gratuitous intro!
+    .duration(750)
+    .tween("hue", function() {
+      var i = d3.interpolate(0, 70);
+      return function(t) { hue(i(t)); };
+    });
+
+function hue(h) {
+  handle.attr("cx", x(h));
+  svg.style("background-color", d3.hsl(h, 0.8, 0.8));
+}
+
+  var data = datas.data;
+  var columns = ["Pledged", "Goal"];
+  var keys = columns;
+
+  $.getJSON("output.json", function (data) {
+    userCategory = data.category;
+    userGoal = data.goal;
+    userCountry = data.country;
+  }).then(function() {
+    for (var i = 0; i < data.length; i++) {
+      var obj = {};
+      if (data[i].category.name === userCategory) {
+        var date = new Date(1000*data[i].launched_at);
+        var month = format(date);
+
+        obj.Pledged = data[i].pledged;
+        obj.Goal = data[i].goal;
+        obj.Category = data[i].category.name;
+        obj.Country = data[i].country;
+        arr.push(obj);
+        ar[data[i].goal] = ar[data[i].goal] || [];
+      }
+    }
+
+    var sortedArr = arr.sort(function(x, y){
+       return d3.ascending(x.Goal, y.Goal);
+    });
+
+    a[count + '-' + countEnd] = [];
+    
+    o.Goal = [];
+    o.Pledged = [];
+    b.goals = [];
+    b.pledged = [];
+    for (var j = 0; j < sortedArr.length; j++) {
+      for (key in ar) {
+        if (Number(key) === sortedArr[j].Goal) {
+        if (Number(key) <= countEnd) {
+            b.goals.push(sortedArr[j].Goal);
+            b.pledged.push(sortedArr[j].Pledged);
+            a[count + '-' + countEnd] = b;
+          } else {
+            b = {};
+            b.goals = [];
+            b.pledged = [];
+            count += 10000;
+            countEnd += 10000;
+          }
+        }
+      }
+    }
+
+    for (var key in a) {
+      var sumGoals = d3.sum(a[key].goals)/a[key].goals.length;
+      var sumPledged = d3.sum(a[key].pledged)/a[key].pledged.length;
+      
+      o.Goal = sumGoals;
+      o.Pledged = sumPledged;
+      o.Range = key;
+      c.push(o);
+      a[key].goals = sumGoals;
+      a[key].pledged = sumPledged;
+      d.push(a[key]);
+      o = {};
+    }
+
+    x0.domain(d3.keys(a));
+    x1.domain(keys).rangeRound([0, x0.bandwidth()]);
+    y.domain([0, d3.max(c, function(d) { return d.Pledged; })]).nice();
+
+    g.append("g")
+      .selectAll("g")
+      .data(c)
+      .enter().append("g")
+        .attr("transform", function(d, i) {
+          return "translate(" + x0(d.Range) + ",0)";
+        })
+      .selectAll("rect")
+      .data(function(d) {
+        return keys.map(function(key) {
+          return {key: key, value: d[key]}; 
+        }); 
+      })
+      .enter().append("rect")
+        .attr("x", function(d) {
+          return x1(d.key); })
+        .attr("y", function(d) {
+          return y(d.value); 
+        })
+        .transition()
+        .duration(2500)
+        .attr("width", x1.bandwidth())
+        .attr("height", function(d) { 
+          return height - y(d.value); 
+        })
+        .attr("fill", function(d) { return z(d.key); });
+
+    g.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x0).ticks(null, "s"));
+
+    g.append("g")
+        .attr("class", "axis")
+        .call(d3.axisLeft(y).ticks(25, "s"))
+      .append("text")
+        .attr("x", 2)
+        .attr("y", y(y.ticks().pop()) + 0.5)
+        .attr("dy", "0.32em")
+        .attr("fill", "#000")
+        .attr("font-weight", "bold")
+        .attr("text-anchor", "start")
+        .text("Goal vs Pledged");
+
+    var legend = g.append("g")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 10)
+        .attr("text-anchor", "end")
+      .selectAll("g")
+      .data(keys.slice().reverse())
+      .enter().append("g")
+        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+    legend.append("rect")
+        .attr("x", width - 600)
+        .attr("width", 19)
+        .attr("height", 19)
+        .attr("fill", z);
+
+    legend.append("text")
+        .attr("x", width - 610)
+        .attr("y", 9.5)
+        .attr("dy", "0.32em")
+        .text(function(d) { return d; });
+    });
+});
+</script>
+
+
+</body>
