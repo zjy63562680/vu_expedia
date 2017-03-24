@@ -1,7 +1,7 @@
 d3.queue()
 
-    .defer(d3.csv, 'data/_failed.csv')
-    .defer(d3.csv, 'data/_succes.csv')
+    .defer(d3.csv, 'jessica/data/_failed.csv')
+    .defer(d3.csv, 'jessica/data/_succes.csv')
     .await(onDataLoaded);
 
 function onDataLoaded(error, dataSucess, dataFailed) {
@@ -720,17 +720,18 @@ function createVisualisation(data) {
     // Create Canvas
     var canvasWidth = 800,
         cardWidth = canvasWidth / 12,
-        canvasWidthTotal = canvasWidth + (cardWidth * 2),
+        canvasWidthTotal = canvasWidth + (cardWidth),
         cardHeight = 20,
         canvasMargin = {top: 0, right: 0, bottom: cardWidth, left: cardWidth},
         canvasHeight = (cardHeight * 35),
         gridSize = Math.floor(canvasWidth / 24);
 
-    var canvas = d3.select("body")
-        .append("svg")
+    var canvas = d3.select(".viz-3")
+        .append("svg:svg")
         .attr("width", canvasWidthTotal)
         .attr("height", canvasHeight)
         .attr("class", "heatmap")
+        .style("margin-left", function(d) { return ( -cardWidth * 1.5 )})
 
     // Create each element
     var cards = canvas.selectAll(".cards")
