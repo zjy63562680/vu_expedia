@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JS Bin</title>
+</head>
+<body>
+
+<script type="text/javascript">
+function reqListener () {
+
+  console.log(typeof this.responseText);
+  
+  console.log( this.responseText);
+}
+
+var oReq = new XMLHttpRequest();
+oReq.addEventListener("load", reqListener);
+oReq.open("GET", "https://www.kickstarter.com/projects/1528751971/1155410850?token=2e695c65");
+oReq.send();
+
+
+// console.log(oReq.responseText)
+</script>
+
+</body>
+</html>
