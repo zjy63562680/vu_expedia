@@ -158,8 +158,12 @@
 
 /* Visualization wrappers */
 .cust-viz {
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: auto;
     background-color: #ececec;
-    min-height: 400px;
+    padding: 16px 8px;
 }
