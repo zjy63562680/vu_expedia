@@ -838,6 +838,11 @@ function bindEvents() {
             el.classList.toggle(activeClass);
         });
     }
+
+    // Listen to global URL change event
+    window.addEventListener('urlHandled', function (e) {
+        //console.log(e.detail.subcategory);
+    }, false);
 }
 
 function changeStates(state, canvas, cards, axis) {

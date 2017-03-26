@@ -42,7 +42,7 @@ function handleUrlRequest () {
 
         $.ajax({
             type: "GET",
-            url: $(input).val(), 
+            url: $(input).val(),
             data: input.serialize(), // serializes the form's elements.
             success: function(data) {
                 var title, country, category;
@@ -72,6 +72,13 @@ function handleUrlRequest () {
                 return def.promise;
             }
         }).then(function () {
+            var event = new CustomEvent('urlHandled', {
+                'detail': {
+                    'subcategory' : 'example',
+                    'googletrend' : 'example',
+                }
+            });
+            window.dispatchEvent(event);
             hideShowViz('show');
         });
     });
@@ -82,6 +89,5 @@ function hideShowViz (hideShow) {
         $('.bubble_chart').hide();
     } else if (hideShow === 'show') {
         $('.bubble_chart').show();
-    } 
+    }
 }
-
