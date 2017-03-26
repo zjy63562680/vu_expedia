@@ -74,13 +74,41 @@ var line = d3.line()
     var parsed = [];
     var parsedRelated = [];
     var arr = [];
-d3.json("/europeFinal.json", function (datas) {
+d3.json("europeFinal.json", function (datas) {
   var data = datas.data;
   $.getJSON("google.json", function (d) {
     parsed = JSON.parse(d).default.timelineData;
   }).then(function () {
     $.getJSON("google_related.json", function (d) {
+      var rankedList = JSON.parse(d).default.rankedList;
       parsedRelated = JSON.parse(d).default.rankedList[0].rankedKeyword;
+      for (var i = 0; i < rankedList.length; i++) {
+        var rankedListObj = rankedList[i];
+        for (var key in rankedListObj) {
+          var list = rankedListObj[key];
+          for (var j = 0; j < list.length; j++) {
+            var title = list[j].topic.title;
+            console.log(title);
+            arr.push(title);
+          }
+        }
+      }
+
+      $.ajax({
+                url: '/',
+                async: false,
+                // dataType: "jsonp",
+                data: JSON.stringify(arr),
+                processData: false,
+                contentType: 'application/json',
+                jsonpCallback: 'callback', // this is not relevant to the POST anymore
+                success: function (data) {
+                    console.log('Success: ');
+                },
+                error: function (xhr, status, error) {
+                    console.log('Error: ' + error.message);
+                },
+            });
   }).then(function() {
     x.domain(d3.extent(parsed, function(d) {
         var date = new Date(1000 * d.time);
