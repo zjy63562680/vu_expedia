@@ -10,9 +10,9 @@
         <link rel="stylesheet" type="text/css" href="css/style.css" media="all" />
 
         <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-        <script type="text/javascript" src="js/template.js"></script>
         <script type="text/javascript" src="js/d3.min.js"></script>
         <script type="text/javascript" src="js/lodash.min.js"></script>
+        <script type="text/javascript" src="js/template.js"></script>
         <script
           src="https://code.jquery.com/jquery-3.1.1.min.js"
           integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
@@ -68,7 +68,7 @@
                         <h2 class="mdl-card__title-text">Geographical map</h2>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        Some description of the visualization, or just delete this parent div.
+                        This map shows popularity of projects based on project origin.
                     </div>
                     <div class="cust-viz viz-1">
                         <!--Put your visualization here-->
@@ -80,11 +80,10 @@
                         <h2 class="mdl-card__title-text">Bubble chart</h2>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        Some description of the visualization, or just delete this parent div.
+                        View the average goal vs average pledged amounts within your category and goal range.
                     </div>
                     <div class="cust-viz viz-2">
                         <!--Put your visualization here-->
-                        <iframe class="bubble_chart" src="amaka/bubble_chart.html" height="500"></iframe>
                     </div>
                 </div>
 
@@ -93,7 +92,7 @@
                         <h2 class="mdl-card__title-text">Heat map</h2>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        Some description of the visualization, or just delete this parent div.
+                        The heat map depicts a comparison against other categories and sub categories.
                     </div>
                     <div class="cust-viz viz-3">
                     </div>
@@ -117,10 +116,20 @@
 
                 <div class="mdl-card mdl-shadow--2dp">
                     <div class="cust-overview">
-                        <h2 class="mdl-card__title-text">Overview</h2>
+                        <h2 class="mdl-card__title-text">Success Score</h2>
+                        <div class="mdl-card__title-text success-score" id="insight-highlight">-/-</div>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        Some description of the overview, or just delete this parent div.
+                        based on the combination of factors such as your location, search trends and projects within your category.
+                    </div>
+                </div>
+
+                <div class="mdl-card mdl-shadow--2dp">
+                    <div class="cust-overview">
+                        <h2 class="mdl-card__title-text tend pop">Overview</h2>
+                    </div>
+                    <div class="mdl-card__supporting-text">
+                        is the project's Google Trends trajectory.
                     </div>
                 </div>
 
@@ -129,16 +138,7 @@
                         <h2 class="mdl-card__title-text">Overview</h2>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        Some description of the overview, or just delete this parent div.
-                    </div>
-                </div>
-
-                <div class="mdl-card mdl-shadow--2dp">
-                    <div class="cust-overview">
-                        <h2 class="mdl-card__title-text">Overview</h2>
-                    </div>
-                    <div class="mdl-card__supporting-text">
-                        Some description of the overview, or just delete this parent div.
+                        is the country of origin with the most success within this project's category.
                     </div>
                 </div>
 
