@@ -5,63 +5,54 @@ var cheerio = require('cheerio');
 var googleTrends = require('google-trends-api');
 var app = express();
 var http = require('http');
+var path = require("path");
+var countrynames = require("countrynames");
+var util = require('util');
 
-app.get('/scrape', function(req, res){
-  url = 'https://www.kickstarter.com/projects/1449277917/1681752382?token=b9cbe6aa';
-
-  request(url, function(error, response, html){
-    var json = { category : '', country : '', goal: ''};
-    if(!error){
-      var $ = cheerio.load(html);
-
-      var title, country, category;
-
-      $('a[href*="places"]').filter(function(){
-        var data = $(this);
-        country = data.text().trim();
-
-        json.country = country;
+function processUrl (req, res, keyword) {
+  googleTrends.interestOverTime({keyword: keyword, startTime: new Date('2016-02-01'), endTime: new Date('2017-02-01')})
+    .then(function(results){
+      //console.log('These results are awesome', results);
+      fs.writeFile('google.json', JSON.stringify(results, null, 4), function(err){
+        //console.log('File successfully written! - Check your project directory for the google.json file');
       });
-
-      $('a[href*="categories"]').filter(function(){
-        var data = $(this);
-        category = data.text().trim();
-
-        json.category = category;
-      });
-
-      $('div.num').filter(function(){
-        var data = $(this);
-        goal = data.attr('data-goal');
-
-        json.goal = goal;
-      });
-    }
-
-    fs.writeFile('output.json', JSON.stringify(json, null, 4), function(err){
-      console.log('File successfully written! - Check your project directory for the output.json file');
-    });
-
-    fs.readFile('./index.html', function (err, html) {     
-      http.createServer(function(request, response) {  
-          res.writeHeader(200, {"Content-Type": "text/html"});  
-          res.write(html);  
-          res.end();  
-      });
-    });
-
-   //res.send('Check your console!');
-
-    googleTrends.interestByRegion({keyword: json.category, startTime: new Date('2016-02-01'), endTime: new Date('2017-02-01'), resolution: 'COUNTRY'})
-      .then(function(results){
-        console.log('These results are awesome', results);
-      })
-      .catch(function(err){
-        console.error('Oh no there was an error', err);
-    });
+    })
+    .catch(function(err){
+      console.error('Oh no there was an error', err);
   });
+
+  googleTrends.relatedTopics({keyword: keyword, startTime: new Date('2016-02-01'), endTime: new Date('2017-02-01')})
+    .then(function (results) {
+          
+    })
+    .catch(function (err) {
+      console.log(err);
+  });
+
+  res.sendFile(path.join(__dirname + '/index.html'));
+  req.on('data', function (chunk) {
+      console.log('GOT DATA!');
+  });
+}
+
+app.get('/', function(req, res){
+  util.log(util.inspect(req)); // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+    util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url); // this line logs just the method and url
+  url = 'https://www.kickstarter.com/projects/1449277917/1681752382?token=b9cbe6aa';
+  processUrl(req, res, req.url.split('?')[1]);
 });
 
-app.listen('8081');
-console.log('Magic happens on port 8081');
+app.post('/', function(req, res){
+});
+
+app.use(express.static(__dirname + '/'));
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
+app.listen('8888');
+
 exports = module.exports = app;
