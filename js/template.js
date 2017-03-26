@@ -1,9 +1,10 @@
-// Fire functions when the page has loaded
+var json;
+
 document.addEventListener("DOMContentLoaded", function() {
 
     bindNavigation();
     handleUrlRequest();
-    hideShowViz('hide');
+    hideShowViz(0);
     // URL entered event?
 
 });
@@ -33,17 +34,16 @@ function bindNavigation() {
 }
 
 function handleUrlRequest () {
-    $('.submit').on('click', function (e) {
+$('.submit').on('click', function (e) {
         e.preventDefault();
         var input = $('.url-input');
-        self.json = {};
         json = {};
         $.ajax({
             type: "GET",
-            url: $(input).val(),
+            url: $(input).val(), 
             data: input.serialize(), // serializes the form's elements.
         }).then(function (data) {
-            var title, country, category, goal;
+            var title, country, category, sub_category, goal;
 
                 $(data).find('a[href*="places"]').filter(function(){
                   var data = $(this);
@@ -52,11 +52,15 @@ function handleUrlRequest () {
                   json.country = country;
                 });
 
-                $(data).find('a[href*="categories"]').filter(function(){
+                $(data).find('a[href*="ref=category"]').filter(function(){
                   var data = $(this);
-                  category = data.text().trim();
+                  category = data[0].href.split('/categories/')[1];
+                  category = category.split('/', 1)[0];
+                  console.log(category);
+                  sub_category = data.text().trim();
 
-                  json.category = category;
+                  json.category = category.toLowerCase();
+                  json.sub_category = sub_category.toLowerCase();
                 });
 
                 $(data).find('div.num').filter(function(){
@@ -71,23 +75,28 @@ function handleUrlRequest () {
                     'detail': {
                         'country'     : json.country,
                         'category'    : json.category,
-                        'subcategory' : 'example',
+                        'subcategory' : json.sub_category,
                         'goal'        : json.goal,
                         'googletrend' : 'example',
                     }
                 });
                 window.dispatchEvent(event);
-                $('.cust-viz.viz-2').html('<iframe class="bubble_chart" src="amaka/bubble_chart.html" height="500"></iframe>');
-                hideShowViz('show');
+                $('.cust-viz.viz-2').html('<iframe class="bubble_chart" src="kickstarter_viz/bubble_chart.html" height="500"></iframe>');
+                hideShowViz(1);
             }
         });
     });
+
 }
 
 function hideShowViz (hideShow) {
-    if (hideShow === 'hide') {
+    if (hideShow === 0) {
         $('.bubble_chart').hide();
-    } else if (hideShow === 'show') {
+    } else if (hideShow === 1) {
         $('.bubble_chart').show();
-    }
+    } 
 }
+
+//}
+
+// Fire functions when the page has loaded
