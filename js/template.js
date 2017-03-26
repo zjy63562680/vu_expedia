@@ -40,7 +40,7 @@ $('.submit').on('click', function (e) {
         json = {};
         $.ajax({
             type: "GET",
-            url: $(input).val(), 
+            url: $(input).val(),
             data: input.serialize(), // serializes the form's elements.
         }).then(function (data) {
             var title, country, category, sub_category, goal;
@@ -52,7 +52,7 @@ $('.submit').on('click', function (e) {
                   json.country = country;
                 });
 
-                $(data).find('a[href*="ref=category"]').filter(function(){
+                $(data).find('a[href*="ref=category"]:not(.btn--green)').filter(function(){
                   var data = $(this);
                   category = data[0].href.split('/categories/')[1];
                   category = category.split('/', 1)[0];
@@ -94,7 +94,7 @@ function hideShowViz (hideShow) {
         $('.bubble_chart').hide();
     } else if (hideShow === 1) {
         $('.bubble_chart').show();
-    } 
+    }
 }
 
 //}
