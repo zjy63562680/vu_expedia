@@ -823,6 +823,9 @@ function createVisualisation(data) {
         .attr("class", function(d) {
             return d.type + ' card cat-' + d.categorynum
         })
+        .attr("data-percentile", function(d) {
+            return Math.round(d.percentile)
+        })
         .call(function(parent){
             parent.append("rect")
                 .attr("x", function(d) { return (d.monthnum * cardWidth) + (cardWidth * 2); })
@@ -931,8 +934,6 @@ function bindEvents(cardHeight, legendHeight) {
             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
             highlightCategory(subcategory);
 
-        } else {
-            console.log('ERROR: Category undefined');
         }
 
 
@@ -1038,11 +1039,6 @@ function changeStates(state, canvas, cards, axis, cardHeight, legendHeight) {
 
     // Moves the svg data elements
     function repositionVisuals(categoryid, subcategories) {
-
-        if (!legendHeight) {
-            console.log('ERROR');
-            return;
-        }
 
         if (categoryid === 'cat-all') {
 
