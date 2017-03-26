@@ -36,50 +36,50 @@ function handleUrlRequest () {
     $('.submit').on('click', function (e) {
         e.preventDefault();
         var input = $('.url-input');
-        var def = $.Deferred();
-        var self = this;
-        self.json = { category : '', country : '', goal: ''};
-
+        self.json = {};
+        json = {};
         $.ajax({
             type: "GET",
             url: $(input).val(),
             data: input.serialize(), // serializes the form's elements.
-            success: function(data) {
-                var title, country, category;
+        }).then(function (data) {
+            var title, country, category, goal;
 
                 $(data).find('a[href*="places"]').filter(function(){
                   var data = $(this);
                   country = data.text().trim().split(", ").pop();
 
-                  self.json.country = country;
+                  json.country = country;
                 });
 
                 $(data).find('a[href*="categories"]').filter(function(){
                   var data = $(this);
                   category = data.text().trim();
 
-                  self.json.category = category;
+                  json.category = category;
                 });
 
                 $(data).find('div.num').filter(function(){
                   var data = $(this);
                   goal = data.attr('data-goal');
 
-                  self.json.goal = goal;
+                  json.goal = goal;
                 });
 
-                def.resolve();
-                return def.promise;
+            if (json.category) {
+                var event = new CustomEvent('urlHandled', {
+                    'detail': {
+                        'country'     : json.country,
+                        'category'    : json.category,
+                        'subcategory' : 'example',
+                        'goal'        : json.goal,
+                        'googletrend' : 'example',
+                    }
+                });
+                window.dispatchEvent(event);
+                $('.cust-viz.viz-2').html('<iframe class="bubble_chart" src="amaka/bubble_chart.html" height="500"></iframe>');
+                hideShowViz('show');
             }
-        }).then(function () {
-            var event = new CustomEvent('urlHandled', {
-                'detail': {
-                    'subcategory' : 'example',
-                    'googletrend' : 'example',
-                }
-            });
-            window.dispatchEvent(event);
-            hideShowViz('show');
         });
     });
 }

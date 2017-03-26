@@ -841,7 +841,7 @@ function bindEvents() {
 
     // Listen to global URL change event
     window.addEventListener('urlHandled', function (e) {
-        //console.log(e.detail.subcategory);
+        console.log(e.detail);
     }, false);
 }
 
