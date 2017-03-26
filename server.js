@@ -7,43 +7,56 @@ var http = require('http');
 var path = require("path");
 var util = require('util');
 var bodyParser = require("body-parser");
-
+var count = 0;
 function processUrl (req, res, keyword) {
-  if (keyword && keyword.length > 1) {
+    function repeat (arr) {
+      console.log(arr, arr.length);
       googleTrends.interestOverTime({keyword: keyword, startTime: new Date('2016-02-01'), endTime: new Date('2017-02-01')})
         .then(function(results){
-          fs.writeFile('google_related_ranks' + i + '.json', JSON.stringify(results, null, 4), function(err){
-            count++;//console.log('File successfully written! - Check your project directory for the google.json file');
+          fs.writeFile('google_related_ranks.json', JSON.stringify(results, null, 4), function(err){
+            console.log('File successfully written! - Check your project directory for the google.json file');
           });
         })
         .catch(function(err){
           console.error('Oh no there was an error in more', err);
       });
-  } else if (keyword && keyword.length === 1) {
-    googleTrends.interestOverTime({ keyword: keyword[0], startTime: new Date('2016-02-01'), endTime: new Date('2017-02-01')})
+    } 
+  if (keyword && keyword.length) {
+    if (keyword.length > 2) {
+      /*var i,j,temparray,chunk = 2;
+      for (i=0,j=keyword.length; i<j; i+=chunk) {
+          temparray = keyword.slice(i,i+chunk);
+          count++;*/
+          repeat(keyword);
+      //}
+    } else if (keyword && keyword.length < 2) {
+      googleTrends.interestOverTime({ keyword: keyword, startTime: new Date('2016-02-01'), endTime: new Date('2017-02-01')})
         .then(function(results){
           fs.writeFile('google_main_ranks.json', JSON.stringify(results, null, 4), function(err){
-            //console.log('File successfully written! - Check your project directory for the google.json file');
+            console.log('Main file successfully written! - Check your project directory for the google.json file');
           });
         })
         .catch(function(err){
           console.error('Oh no there was an error in less 1', err);
       });
 
-      googleTrends.relatedTopics({keyword: keyword[0], startTime: new Date('2016-02-01'), endTime: new Date('2017-02-01')})
+      googleTrends.relatedTopics({keyword: keyword, startTime: new Date('2016-02-01'), endTime: new Date('2017-02-01')})
         .then(function (results) {
           fs.writeFile('google_related.json', JSON.stringify(results, null, 4), function(err){
-            //console.log('File successfully written! - Check your project directory for the google.json file');
+            console.log('Related file successfully written! - Check your project directory for the google.json file');
           });
         })
         .catch(function (err) {
           console.log('Oh no there was an error in less 2', err);
       });
-  } else {
+    } else {
+      console.log('Yooo');
+    }
+  }  else {
     console.log('Good luck');
   }
   
-  res.sendFile(path.join(__dirname + '/index.html'));
+  
 }
 
 app.get('/', function(req, res){
@@ -56,7 +69,9 @@ app.get('/', function(req, res){
     if (title && title.indexOf('?') > -1) {
       parsed = JSON.parse(title.split('?')[1]);
     }
+
     processUrl(req, res, parsed);
+    res.sendFile(path.join(__dirname + '/index.html'));
 });
 
 app.post('/', function(req, res){
