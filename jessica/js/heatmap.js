@@ -1128,7 +1128,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                             highlightCategory(subcategory);
                             break
                         }
-                        case 'architecture ':{
+                        case 'architecture':{
                             var category      = 'cat-24',
                                 subcategory   = 'cat-27';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -1167,7 +1167,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                     break
                 case 'fashion':
                     switch(subcategory){
-                        case 'accessories ':{
+                        case 'accessories':{
                             var category      = 'cat-31',
                             subcategory   = 'cat-32';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -1473,14 +1473,14 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                     break
                 case 'games':
                     switch(subcategory){
-                        case 'tabletop games ':{
+                        case 'tabletop games':{
                             var category      = 'cat-73',
                                 subcategory   = 'cat-74';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
                             highlightCategory(subcategory);
                             break
                         }
-                        case 'video games ':{
+                        case 'video games':{
                             var category      = 'cat-73',
                                 subcategory   = 'cat-75';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -1738,7 +1738,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                             highlightCategory(subcategory);
                             break
                         }
-                        case 'places ':{
+                        case 'places':{
                             var category      = 'cat-105',
                                 subcategory   = 'cat-110';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -1879,7 +1879,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                     break
                 case 'theater':
                     switch(subcategory){
-                        case 'experimental ':{
+                        case 'experimental':{
                             var category      = 'cat-128',
                                 subcategory   = 'cat-129';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -2048,7 +2048,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                     break
                 case 'crafts':
                     switch(subcategory){
-                        case 'candles ':{
+                        case 'candles':{
                             var category      = 'cat-151',
                                 subcategory   = 'cat-152';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -2062,7 +2062,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                             highlightCategory(subcategory);
                             break
                         }
-                        case 'diy ':{
+                        case 'diy':{
                             var category      = 'cat-151',
                                 subcategory   = 'cat-154';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -2076,7 +2076,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                             highlightCategory(subcategory);
                             break
                         }
-                        case 'glass ':{
+                        case 'glass':{
                             var category      = 'cat-151',
                                 subcategory   = 'cat-156';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -2090,7 +2090,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                             highlightCategory(subcategory);
                             break
                         }
-                        case 'letterpress ':{
+                        case 'letterpress':{
                             var category      = 'cat-151',
                                 subcategory   = 'cat-158';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -2139,7 +2139,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                             highlightCategory(subcategory);
                             break
                         }
-                        case 'woodworking ':{
+                        case 'woodworking':{
                             var category      = 'cat-151',
                                 subcategory   = 'cat-165';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -2166,6 +2166,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
 
             // Updates main template
             updateTemplate(e.detail.category, e.detail.subcategory, monthNames);
+            console.log(e.detail.subcategory);
         }
 
     }, false);
