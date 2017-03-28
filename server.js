@@ -60,7 +60,6 @@ function processUrl (req, res, keyword) {
 app.get('/', function(req, res){
   //util.log(util.inspect(req)); // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
   //util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url); // this line logs just the method and url
-  url = 'https://www.kickstarter.com/projects/1449277917/1681752382?token=b9cbe6aa';
   var title = unescape(req.url);
   var parsed;
 
@@ -76,6 +75,9 @@ app.post('/', function(req, res){
 });
 
 app.use(express.static(__dirname + '/'));
+app.use(express.static(__dirname + '/amaka/'));
+app.use(express.static(__dirname + '/jessica/'));
+app.use(express.static(__dirname + '/fernando/'));
 
 app.use(bodyParser.json({}));
 
