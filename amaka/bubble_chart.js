@@ -11,9 +11,10 @@ function onDataLoaded(error, data) {
 }
 
 
-var json = {"category": "Videos", "sub_category": "Video Games", "goal": "200"};
+var json = {"category": "Videos", "sub_category": "Video Games", "goal": "200", "pledged": "0"};
 function handleData (datas) {
   d3.select('svg').remove();
+  d3.select("legend").remove();
   var data = datas.data;
   var columns = ["Pledged", "Goal"];
   var keys = columns;
@@ -33,7 +34,9 @@ function handleData (datas) {
     .attr("width", canvasWidth - 200)
     .attr("height", canvasHeight/2)
     .attr('class', 'bubs')
-    .attr('id', 'chart')
+    .attr('id', 'chart');
+
+      var tooltip = floatingTooltip('gates_tooltip', 240);
 
 
    window.addEventListener('urlHandled', function (e) {
@@ -73,7 +76,7 @@ function handleData (datas) {
 
       // defines brush
       var brush = d3.brushX()
-          .extent([[0, 0], [startingValue, startingValue]])
+          .extent([[0, 0], [startingValue, 60]])
           .on("start brush end", brushed);
 
       var sv = svg.append("g")
@@ -127,7 +130,7 @@ function handleData (datas) {
 
         if (d3.event && d3.event.selection) {
           value = timeScale.invert(d3.mouse(this)[0]);
-          brush.extent([[0, 0], [value, value]]);
+          brush.extent([[0, 0], [0, 0]]);
           handles.attr("transform", "translate(" + timeScale(value) + ",0)");
           handles.select('text').text(formatDate(value));
 
@@ -135,6 +138,7 @@ function handleData (datas) {
 
             d3.selectAll("circle").remove();
             d3.select("legend").remove();
+            tooltip.hideTooltip();
             dateValue = formatDate(value);
             getData(dateValue, 'mean');
           }  
@@ -147,7 +151,7 @@ function handleData (datas) {
       var ar = [];
       var a = {};
       var count = 0;
-      var countEnd = 10000;
+      var countEnd = 1000;
       var b = {};
       var totalGoals = 0;
       var totalPledged = 0;
@@ -178,6 +182,31 @@ function handleData (datas) {
       var max = document.getElementById('max');
       var mean = document.getElementById('mean');
       var clear = document.getElementById('clear');
+      // @v4 strength to apply to the position forces
+      var forceStrength = 0.2;
+      var bubbles = null;
+      var delay = 0;
+      function charge(d) {
+        return -Math.pow(d.radius, 2.0) * forceStrength;
+      }
+      // Constants for sizing
+      var width = 940;
+      var height = 600;
+      var center = { x: width / 2, y: height / 2 };
+
+      // Here we create a force layout and
+      // @v4 We create a force simulation now and
+      //  add forces to it.
+      var simulation = d3.forceSimulation()
+        .velocityDecay(0.2)
+        .force('x', d3.forceX().strength(forceStrength).x(center.x))
+        .force('y', d3.forceY().strength(forceStrength).y(center.y))
+        .force('charge', d3.forceManyBody().strength(charge))
+        .on('tick', ticked);
+
+      // @v4 Force starts up automatically,
+      //  which we don't want as there aren't any nodes yet.
+      simulation.stop();
     
       min.addEventListener('click', function (e) {
         d3.selectAll("circle").remove();
@@ -258,8 +287,8 @@ function handleData (datas) {
                 b = {};
                 b.goals = [];
                 b.pledged = [];
-                count += 10000;
-                countEnd += 10000;
+                count += 1000;
+                countEnd += 1000;
               }
             }
           }
@@ -282,7 +311,9 @@ function handleData (datas) {
               avPledged = d3.max(a[k].pledged);
             }
 
-            a[k] = avPledged/avGoals;
+            a[k].range = avPledged/avGoals;
+            a[k].av_goal = avGoals;
+            a[k].av_pledged = avPledged;
             totalGoals += sumGoals;
             totalPledged += sumPledged;
           } 
@@ -312,35 +343,86 @@ function handleData (datas) {
         return;
       }
 
+      function showDetail(d) {
+        // change outline to indicate hover state.
+        d3.select(this).attr('stroke', 'black');
+        var content = '<span class="name">Category: </span><span class="value">' +
+                      json.category +
+                      '</span><br/>' +
+                      '<span class="name">Your Goal: </span><span class="value">$' +
+                      json.goal +
+                      '</span><br/>' +
+                      '<span class="name">Goal Range: </span><span class="value">$' +
+                      d.data.name +
+                      '</span><br/>' +
+                      '<span class="name">Average Goal Amount in this Range: </span><span class="value">$' +
+                      Math.round(d.data.av_goal) +
+                      '</span><br/>' +
+                      '<span class="name">Your Pledged Amount: </span><span class="value">$' +
+                      json.pledged +
+                      '</span><br/>' +
+                      '<span class="name">Average Pledged Amount in this Range: </span><span class="value">$' +
+                      Math.round(d.data.av_pledged) +
+                      '</span><br/>' +
+                      '<span class="name">Month: </span><span class="value">' +
+                      mth +
+                      '</span>';
+
+        tooltip.showTooltip(content, d3.event);
+      }
+
+      /*
+       * Hides tooltip
+       */
+      function hideDetail(d) {
+        // reset outline
+        d3.select(this)
+          .attr('stroke', 'none');
+
+        svg.selectAll('.goal'+ position)
+          .attr('stroke', '#000000')
+          .attr('stroke-width', '4')
+          .append("circle")
+          .attr('transform', function(d) { return 'translate(5, 5)'; })
+          .attr('r', function(d) { return 3; });
+
+        tooltip.hideTooltip();
+      }
+
       function drawBubbles(c) {
+        // @v4 strength to apply to the position forces
+        var forceStrength = 0.03;
         // generate data with calculated layout values
         var nodes = bubble(r).descendants()
           .filter(function(d) { return !d.children; }); // filter out the outer bubble
         // assign new data to existing DOM 
         nodes = nodes.sort(function(x, y){
-          return d3.ascending(x.data.name, y.data.name);
+          return Number(x.data.name.split('-')[0]) - Number(y.data.name.split('-')[0]);
         });
 
-        var vis = svg.selectAll('.graph')
+        var vis = svg.selectAll('circle')
           .data(nodes, function(d) { return d.data.name; });
         // enter data -> remove, so non-exist selections for upcoming data won't stay -> enter new data -> ...
         // To chain transitions, 
         // create the transition on the updating elements before the entering elements 
         // because enter.append merges entering elements into the update selection
         var duration = 500;
-        var delay = 0;
         // update - this is created before enter.append. it only applies to updating nodes.
-        vis.transition()
+        /*vis.transition()
           .duration(duration)
           .delay(function(d, i) {delay = i * 7; return delay;}) 
-          .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+          .attr('transform', function(d) { return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
           .attr('r', function(d) { return d.r; })
           .style('opacity', 1); // force to 1, so they don't get stuck below 1 at enter()
-
+*/
         // enter - only applies to incoming elements (once emptying data) 
-        vis.enter().append('circle')
-        .attr('class', 'graph')
-        .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+        var bubblesE = vis.enter().append('circle')
+          .classed('bubble', true)
+          .attr('r', 0)
+          .on('mouseover', showDetail)
+          .on('mouseout', hideDetail)
+          .attr('class', 'graph')
+          .attr('transform', function(d) { return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
           .attr('r', function(d) { return 0; })
           .style("fill", function(d, i) {
             return z(i); })
@@ -355,16 +437,22 @@ function handleData (datas) {
           })
           .transition()
           .duration(duration * 1.2)
-          .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+          .attr('transform', function(d) { return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
           .attr('r', function(d) { return d.r/1.5; })
           .style('opacity', 1);
 
-        svg.selectAll('.goal'+ position)
+        d3.selectAll('.goal'+ position)
           .attr('stroke', '#000000')
           .attr('stroke-width', '4')
-          .append("circle")
-          .attr('transform', function(d) { return 'translate(5, 5)'; })
-          .attr('r', function(d) { return 3; });
+          .style('stroke', '#000000');
+
+        bubbles = vis.merge(bubblesE);
+
+        simulation.nodes(nodes);
+
+        // Set initial layout to single group.
+        groupBubbles();
+
 
         // exit
         vis.exit()
@@ -381,13 +469,28 @@ function handleData (datas) {
           .remove();
       }
 
+      function ticked() {
+        bubbles
+          .attr('cx', function (d) { return d.x/2; })
+          .attr('cy', function (d) { return d.y/2; });
+      }
+
+      function groupBubbles() {
+
+        // @v4 Reset the 'x' force to draw the bubbles to the center.
+        simulation.force('x', d3.forceX().strength(forceStrength).x(center.x));
+
+        // @v4 We can reset the alpha value and restart the simulation
+        simulation.alpha(1).restart();
+      }
+
       function processData(data) {
         if(!data) return;
         var obj = data;
         var newDataSet = [];
 
         for(var prop in obj) {
-          newDataSet.push({name: prop, className: prop.toLowerCase().replace(/ /g,''), size: obj[prop]});
+          newDataSet.push({name: prop, className: prop.toLowerCase().replace(/ /g,''), size: obj[prop].range, av_pledged: obj[prop].av_pledged, av_goal: obj[prop].av_goal});
         }
         return {children: newDataSet};
       }
