@@ -7,9 +7,6 @@
   // Save off default references
   var d3 = window.d3, topojson = window.topojson;
 
-
-
-
   var defaultOptions = {
     scope: 'world',
     responsive: false,
@@ -246,12 +243,6 @@
       .style('stroke', geoConfig.borderColor);
   }
 
-
-
-
-
-
-
   function handleGeographyConfig () {
     var hoverover;
     var svg = this.svg;
@@ -301,18 +292,20 @@
             if (typeof datum.cont === "undefined"){}
             else {
 
-            console.log(datum.cont)
+            // console.log(datum.cont)
 
-            d3.select('div')
-              // .attr("id", "zoomed-hr")
+            d3.selectAll('div')
               .transition()
               .duration(800)
               .style("opacity",0)
               .remove();
+              setTimeout(function(){
+                words_maps(datum.cont)
+              },800);
 
-              window.setTimeout(words_maps,800);
+              
             }
-
+            
           }
         })
 
@@ -339,7 +332,10 @@
     function moveToFront() {
       this.parentNode.appendChild(this);
     }
+
+
   }
+
 
   // Plugin to add a simple map legend
   function addLegend(layer, data, options) {

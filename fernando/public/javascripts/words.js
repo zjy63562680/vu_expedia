@@ -1,38 +1,19 @@
  
-function words_maps(map){
+function words_maps(country,tex){
  var fill = d3.scale.category20();
 
+ d3.json("../data/words.txt",function(data3){
+  words_list =[];
+  data3.forEach(function(element3){
+        if (element3[0] == country){
+    words_list.push([element3[1],element3[2]])}
+    
+  })
+  // console.log(words_list)
+
   d3.layout.cloud().size([500,500])
-      .words([
-["Neymar",10],
-["Lionel Messi",10],
-["Cristiano Ronaldo",10],
-["Soccer",10],
-["FC Barcelona",50],
-["Luis Suárez",10],
-["Brazil",10],
-["Hairstyle",10],
-["Shoe",10],
-["Nike, Inc.",10],
-["Michael Jordan",5],
-["Real Madrid C.F.",10],
-["Air Jordan",20],
-["Football player",10],
-["Jersey",30],
-["Gareth Bale",10],
-["Wallpaper",10],
-["Girlfriend",10],
-["Skill",10],
-["Javier Hernández",10],
-["Goal",10],
-["Copa América",10],
-["Olympic Games",10],
-["Paul Pogba",10],
-["FIFA 16",0]
-
-
-        ].map(function(d) {
-        return {text: d[0], size: 10 +d[1] };
+      .words(words_list.map(function(d) {
+        return {text: d[0], size: 20 +d[1] };
       }))
       .rotate(function() { return ~~(Math.random() * 1) * 1; })
       .font("Impact")
@@ -42,7 +23,7 @@ function words_maps(map){
 
       .start();
 
-
+})
   function draw(words) {
     d3.select("body").append("svg")
 
@@ -65,7 +46,10 @@ function words_maps(map){
           .duration(800)
           .style("opacity",0)
           .remove()
-          window.setTimeout(maps,800)
+           setTimeout(function(){
+                maps(text)
+              },800);
+          
           })
 
 
@@ -83,7 +67,7 @@ function words_maps(map){
         .text(function(d) { return d.text; });
   }
   }
-
+// }
 
 
 

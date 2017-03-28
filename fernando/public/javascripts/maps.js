@@ -1,4 +1,3 @@
-// var d3 = require("d3");
 
 
 function maps(project){
@@ -94,7 +93,6 @@ d3.json("../data/trends.txt",function(data2){
 
         })
 
-console.log(document.getElementById('zoomed-hr'))
 
  })
 

@@ -11,14 +11,31 @@ router.get('/', function(req, res, next) {
 });
 
 
-googleTrends.relatedTopics({keyword: 'Neymar', geo: 'DE'})
+function google(category){
+
+googleToFile(category);
+google_words(category);
+
+}
+
+
+function googleToFile(topic){
+var countries = ['DE','FR','NL','GB','ES','BE','IT','IE']
+var testing = [];
+
+countries.forEach(function(element2){
+
+googleTopics(element2)
+function googleTopics(geo){
+googleTrends.relatedTopics({keyword: topic, geo: element2})
 .then((res) => {
 var json_file = JSON.parse(res);
-  console.log(json_file);
-})
-.catch((err) => {
-  console.log(err);
-});
+var oj = json_file['default']['rankedList'][0]['rankedKeyword']
+
+for (var x=0; x< oj.length;x++){
+testing.push([geo,oj[x].topic.title, oj[x].value])};
+jsonfile.writeFile('./public/data/words.txt',testing)
+}) }  })}
 
 
 function google_words(words){
@@ -29,8 +46,6 @@ googleTrends.interestByRegion({keyword: words})
 	var json_file = JSON.parse(res);
 	json_file['default']['geoMapData'].forEach(function(element){
 	list.push([element['geoCode'],element['formattedValue'][0]])
-
-
   })
 	jsonfile.writeFile('./public/data/trends.txt', list)
 })
@@ -39,6 +54,7 @@ googleTrends.interestByRegion({keyword: words})
 })
 }
 
-google_words('Neymar');
+google('ISIS')
+
 
 module.exports = router;
