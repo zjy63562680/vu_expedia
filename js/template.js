@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     bindNavigation();
     handleUrlRequest();
-    hideShowViz(0);
     // URL entered event?
 
 });
@@ -40,7 +39,7 @@ function handleUrlRequest () {
         json = {};
         $.ajax({
             type: "GET",
-            url: $(input).val(),
+            url: $(input).val(), 
             data: input.serialize(), // serializes the form's elements.
         }).then(function (data) {
             var title, country, category, sub_category, goal;
@@ -70,25 +69,29 @@ function handleUrlRequest () {
                   json.goal = goal;
                 });
 
+                $(data).find('.js-pledged').filter(function(){
+                  var data = $(this);
+                  pledged = data.html().split("$")[1];
+
+                  json.pledged = pledged;
+                });
+
             if (json.category) {
                 var event = new CustomEvent('urlHandled', {
                     'detail': {
                         'country'     : json.country,
                         'category'    : json.category,
-                        'subcategory' : json.sub_category,
+                        'sub_category' : json.sub_category,
                         'goal'        : json.goal,
+                        'pledged'     : json.pledged,
                         'googletrend' : 'example',
                     }
                 });
                 window.dispatchEvent(event);
-                $('.cust-viz.viz-2').html('<iframe class="bubble_chart" src="kickstarter_viz/bubble_chart.html" height="500"></iframe>');
-                $('.cust-viz.viz-4').html('<iframe class="bubble_chart" src="kickstarter_viz/trend_graph.html" height="500"></iframe>');
-                hideShowViz(1);
             }
         }).then(function () {
             $.ajax({
                 url: '/',
-                // dataType: "jsonp",
                 data: JSON.stringify([json.category]),
                 jsonpCallback: 'callback', // this is not relevant to the POST anymore
                 success: function (data) {
@@ -102,12 +105,6 @@ function handleUrlRequest () {
     });
 }
 
-function hideShowViz (hideShow) {
-    if (hideShow === 0) {
-        $('.bubble_chart').hide();
-    } else if (hideShow === 1) {
-        $('.bubble_chart').show();
-    }
-}
+
 
 // Fire functions when the page has loaded

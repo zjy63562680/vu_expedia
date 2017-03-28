@@ -928,7 +928,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
         if(e.detail) {
 
             var category = e.detail.category,
-                subcategory = e.detail.subcategory;
+                subcategory = e.detail.sub_category;
 
             // Filters string to category ID to match data
             switch(category) {
