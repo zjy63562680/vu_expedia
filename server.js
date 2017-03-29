@@ -12,7 +12,6 @@ var count = 0;
 
 function processUrl (req, res, keyword) {
   function repeat (item) {
-    console.log('first' + list.length, count, item, item[count]);
     if (!item[count]) {
       count = 0;
       return;
@@ -21,7 +20,7 @@ function processUrl (req, res, keyword) {
         .then(function(results){
           list.push(results);
           count++;
-          fs.writeFile('google_related_ranks.json', JSON.stringify(list, null, 4), function(err){
+          fs.writeFile('/data/google_related_ranks.json', JSON.stringify(list, null, 4), function(err){
             console.log('File successfully written! - Check your project directory for the google.json file');
           });
           repeat(item);
@@ -40,7 +39,7 @@ function processUrl (req, res, keyword) {
 
       googleTrends.relatedTopics({keyword: keyword[0], startTime: new Date('2016-02-01'), endTime: new Date('2017-02-01')})
         .then(function (results) {
-          fs.writeFile('google_related.json', JSON.stringify(results, null, 4), function(err){
+          fs.writeFile('data/google_related.json', JSON.stringify(results, null, 4), function(err){
             console.log('Related file successfully written! - Check your project directory for the google.json file');
           });
         })
@@ -52,14 +51,13 @@ function processUrl (req, res, keyword) {
     }
   }  else {
     console.log('Good luck');
-  }
-  
-  
+  } 
 }
 
 app.get('/', function(req, res){
   //util.log(util.inspect(req)); // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
   //util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url); // this line logs just the method and url
+  url = 'https://www.kickstarter.com/projects/1449277917/1681752382?token=b9cbe6aa';
   var title = unescape(req.url);
   var parsed;
 
@@ -71,13 +69,11 @@ app.get('/', function(req, res){
     res.sendFile(path.join(__dirname + '/index.html'));
 });
 
-app.post('/', function(req, res){
-});
-
-app.use(express.static(__dirname + '/'));
 app.use(express.static(__dirname + '/amaka/'));
 app.use(express.static(__dirname + '/jessica/'));
 app.use(express.static(__dirname + '/fernando/'));
+app.use(express.static(__dirname + '/data/'));
+app.use(express.static(__dirname + '/'));
 
 app.use(bodyParser.json({}));
 
@@ -87,6 +83,6 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.listen('8090');
+app.listen('8000');
 
 exports = module.exports = app;

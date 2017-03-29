@@ -1,38 +1,39 @@
 d3.queue()
-    .defer(d3.json, 'data/europeFinal.json')
-    .await(onDataLoaded);
+  .defer(d3.json, 'europeFinal.json')
+  .await(onDataLoaded);
 
 function onDataLoaded(error, data) {
-    if (error) {
-        console.log('Error log: ' + error);
-    } else {
-        handleBubbleData(data);
-    }
+  if (error) {
+    console.log('Error log: ' + error);
+  } else {
+    handleBubbleData(data);
+  }
 }
 
 
 var json = {"category": "Videos", "sub_category": "Video Games", "goal": "200", "pledged": "0"};
+
 function handleBubbleData (datas) {
-  d3.select('svg.bubs').remove();
-  d3.select("legend").remove();
+  d3.select('.bubs').remove();
+  d3.select(".bubLegend").remove();
   var data = datas.data;
   var columns = ["Pledged", "Goal"];
   var keys = columns;
   var picker = document.getElementById('dataCenterPicker');
   var format = d3.timeFormat('%B');
   var dateValue;
-  var cardHeight = 30,
-    canvasWidth = 900,
-    cardWidth = canvasWidth / 12,
-    legendHeight = cardHeight * 4,
-    legendWidth = cardWidth * 7,
-    canvasWidthTotal = canvasWidth + (cardWidth * 2),
-    canvasHeight = (cardHeight * 35) + legendHeight,
-    gridSize = Math.floor(canvasWidth / 24);
+  var bubbleCardHeight = 30,
+    bubbleCanvasWidth = 900,
+    bubbleCardWidth = bubbleCanvasWidth / 12,
+    bubbleLegendHeight = bubbleCardHeight * 4,
+    bubbleLegendWidth = bubbleCardWidth * 7,
+    bubbleCanvasWidthTotal = bubbleCanvasWidth + (bubbleCardWidth * 2),
+    bubbleCanvasHeight = (bubbleCardHeight * 35) + bubbleLegendHeight,
+    bubbleGridSize = Math.floor(bubbleCanvasWidth / 24);
   var svg = d3.select(".viz-2")
     .append("svg:svg")
-    .attr("width", canvasWidth - 200)
-    .attr("height", canvasHeight/2)
+    .attr("width", bubbleCanvasWidth - 200)
+    .attr("height", bubbleCanvasHeight/2)
     .attr('class', 'bubs')
     .attr('id', 'chart');
 
@@ -51,9 +52,6 @@ function handleBubbleData (datas) {
     getData(null, 'mean');
 
     function drawSlider () {
-      var formatDate = d3.timeFormat("%B");
-      var x = d3.scaleLinear().range([0, width]);
-
       // parameters
       var margin = {
           top: 50,
@@ -63,6 +61,9 @@ function handleBubbleData (datas) {
         },
         width = 700 - margin.left - margin.right,
         height = 300 - margin.bottom - margin.top;
+      var formatDate = d3.timeFormat("%B");
+      var x = d3.scaleLinear().range([0, width]);
+
 
       // scale function
       var timeScale = d3.scaleTime()
@@ -77,13 +78,13 @@ function handleBubbleData (datas) {
 
       // defines brush
       var brush = d3.brushX()
-          .extent([[0, 0], [startingValue, 60]])
+          .extent([[0, 0], [600, 60]])
           .on("start brush end", brushed);
 
       var sv = svg.append("g")
         .attr('class', 'slide')
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("height", height + margin.top + margin.bottom - 60)
         .attr("vertical-align", "top")
         // classic transform to position g
         .attr("transform", "translate(" + margin.left + ", 0)");
@@ -129,7 +130,7 @@ function handleBubbleData (datas) {
       function brushed() {
         var value = d3.brushSelection(d3.select(".slider").node());
 
-        if (d3.event && d3.event.selection) {
+        if (d3.event && d3.event.sourceEvent) {
           value = timeScale.invert(d3.mouse(this)[0]);
           brush.extent([[0, 0], [0, 0]]);
           handles.attr("transform", "translate(" + timeScale(value) + ",0)");
@@ -138,11 +139,11 @@ function handleBubbleData (datas) {
           if (d3.event.type === 'end') {
 
             d3.selectAll("circle").remove();
-            d3.select("legend").remove();
+            d3.select(".bubLegend").remove();
             tooltip.hideTooltip();
             dateValue = formatDate(value);
             getData(dateValue, 'mean');
-          }
+          }  
         }
       }
     }
@@ -158,10 +159,10 @@ function handleBubbleData (datas) {
       var totalPledged = 0;
       var position;
       var sortedArr;
-      var diameter = Math.min(canvasWidth, canvasHeight/2) - 80;
+      var diameter = Math.min(bubbleCanvasWidth, bubbleCanvasHeight/2) - 80;
 
       var colorrange = ['#DF4949', '#E27A3F', '#EFC94C', '#9B59B6', '#3498db',
-        '#F495A3', '#45B29D', '#293950', '#b60335', '#2d7108', '#320871',
+        '#F495A3', '#45B29D', '#293950', '#b60335', '#2d7108', '#320871', 
         '#71182b', '#64dcbe', '#9fdc64', '#9e5f28', '#ec2876', '#013639',
         '#39011d', '#9d00c4', '#771715'];
 
@@ -170,11 +171,11 @@ function handleBubbleData (datas) {
 
       d3.select(".viz-2")
         .append('legend')
+        .attr('class', 'bubLegend')
         .append('div')
-        .attr('class', 'filters')
         .html('Sort by: <a class="min" id="min">Min</a> / <a class="mean" id="mean">Mean</a> / <a class="max" id="max">Max</a><br><a id="clear" class="clear">Clear Filters</a>')
 
-      d3.select("legend")
+      d3.select(".bubLegend")
         .append('div')
         .attr('class', 'legendLeft');
 
@@ -195,36 +196,6 @@ function handleBubbleData (datas) {
       var height = 600;
       var center = { x: width / 2, y: height / 2 };
 
-  var yearCenters = {
-    January: { x: width / 3, y: height / 2 },
-    February: { x: width / 2, y: height / 2 },
-    March: { x: 2 * width / 3, y: height / 2 },
-    April: { x: 3 * width / 3, y: height / 2 },
-    May: { x: 4 * width / 3, y: height / 2 },
-    June: { x: 5 * width / 3, y: height / 2 },
-    July: { x: 6 * width / 3, y: height / 2 },
-    August: { x: 7 * width / 3, y: height / 2 },
-    September: { x: 8 * width / 3, y: height / 2 },
-    October: { x: 9 * width / 3, y: height / 2 },
-    November: { x: 10 * width / 3, y: height / 2 },
-    December: { x: 2 * width / 3, y: height / 2 }
-  };
-
-  // X locations of the year titles.
-  var yearsTitleY = {
-    Jan: 20,
-    Feb: width / 2 - 400,
-    Mar: width / 2 - 350,
-    Apr: width / 2 - 300,
-    May: width/2 - 250,
-    Jun: width/2 - 200,
-    Jul: width/2 - 150,
-    Aug: width/2 - 100,
-    Sep: width/2 - 50,
-    Oct: width/2,
-    Nov: width/2 + 50,
-    Dec: width/2 + 100
-  };
 
       // Here we create a force layout and
       // @v4 We create a force simulation now and
@@ -239,32 +210,32 @@ function handleBubbleData (datas) {
       // @v4 Force starts up automatically,
       //  which we don't want as there aren't any nodes yet.
       simulation.stop();
-
+    
       min.addEventListener('click', function (e) {
         d3.selectAll("circle").remove();
-        d3.select("legend").remove();
+        d3.select(".bubLegend").remove();
         dateValue = dateValue || null;
         getData(dateValue, 'min');
       });
       max.addEventListener('click', function (e) {
         d3.selectAll("circle").remove();
-        d3.select("legend").remove();
+        d3.select(".bubLegend").remove();
         dateValue = dateValue || null;
         getData(dateValue, 'max');
       });
       mean.addEventListener('click', function (e) {
         d3.selectAll("circle").remove();
-        d3.select("legend").remove();
+        d3.select(".bubLegend").remove();
         dateValue = dateValue || null;
         getData(dateValue, 'mean');
       });
       clear.addEventListener('click', function(e){
         d3.selectAll("circle").remove();
-        d3.select("legend").remove();
+        d3.select(".bubLegend").remove();
         d3.select('.slide').remove();
         dateValue = null;
         getData(null, 'mean');
-        //drawSlider();
+        drawSlider();
       }, false);
 
       for (var i = 0; i < data.length; i++) {
@@ -350,13 +321,13 @@ function handleBubbleData (datas) {
             a[k].av_pledged = avPledged;
             totalGoals += sumGoals;
             totalPledged += sumPledged;
-          }
+          } 
         }
 
         statPerc = totalPledged/totalGoals * 100;
         statScore = statPerc/4;
 
-        /* D3 Bubble Chart */
+        /* D3 Bubble Chart */      
         var bubble = d3.pack()
             .size([diameter, diameter]) // new data is loaded to bubble layout
             .padding(3);
@@ -367,7 +338,7 @@ function handleBubbleData (datas) {
         drawBubbles(a);
       } else {
         d3.select('.slide').remove();
-        d3.select("legend").remove();
+        d3.select(".bubLegend").remove();
         d3.select('.bubs')
         .append('text')
         .attr("transform", "translate(300, 100)")
@@ -422,58 +393,6 @@ function handleBubbleData (datas) {
 
         tooltip.hideTooltip();
       }
-      //setupButtons();
-      function setupButtons() {
-        d3.select('.viz-2')
-          .append('button')
-          .html('Year')
-          .attr('id', 'year')
-          .on('click', function () {
-            // Remove active class from all buttons
-            d3.selectAll('button').classed('active', false);
-            // Find the button just clicked
-            var button = d3.select(this);
-
-            // Set it as the active button
-            button.classed('active', true);
-
-            // Get the id of the button
-            var buttonId = button.attr('id');
-
-            // Toggle the bubble chart based on
-            // the currently clicked button.
-            toggleDisplay(buttonId);
-          });
-
-          d3.select('.viz-2')
-          .append('button')
-          .html('Clear')
-          .on('click', function () {
-            // Remove active class from all buttons
-            d3.selectAll('button').classed('active', false);
-            // Find the button just clicked
-            var button = d3.select(this);
-
-            // Set it as the active button
-            button.classed('active', true);
-
-            // Get the id of the button
-            var buttonId = button.attr('id');
-
-            // Toggle the bubble chart based on
-            // the currently clicked button.
-            toggleDisplay(buttonId);
-          });
-      }
-
-      function toggleDisplay(displayName) {
-        console.log(displayName)
-        if (displayName === 'year') {
-          splitBubbles();
-        } else {
-          groupBubbles();
-        }
-      }
 
       function drawBubbles(c) {
         // @v4 strength to apply to the position forces
@@ -481,7 +400,7 @@ function handleBubbleData (datas) {
         // generate data with calculated layout values
         var nodes = bubble(r).descendants()
           .filter(function(d) { return !d.children; }); // filter out the outer bubble
-        // assign new data to existing DOM
+        // assign new data to existing DOM 
         nodes = nodes.sort(function(x, y){
           return Number(x.data.name.split('-')[0]) - Number(y.data.name.split('-')[0]);
         });
@@ -489,19 +408,19 @@ function handleBubbleData (datas) {
         var vis = svg.selectAll('circle')
           .data(nodes, function(d) { return d.data.name; });
         // enter data -> remove, so non-exist selections for upcoming data won't stay -> enter new data -> ...
-        // To chain transitions,
-        // create the transition on the updating elements before the entering elements
+        // To chain transitions, 
+        // create the transition on the updating elements before the entering elements 
         // because enter.append merges entering elements into the update selection
         var duration = 500;
         // update - this is created before enter.append. it only applies to updating nodes.
         /*vis.transition()
           .duration(duration)
-          .delay(function(d, i) {delay = i * 7; return delay;})
+          .delay(function(d, i) {delay = i * 7; return delay;}) 
           .attr('transform', function(d) { return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
           .attr('r', function(d) { return d.r; })
           .style('opacity', 1); // force to 1, so they don't get stuck below 1 at enter()
 */
-        // enter - only applies to incoming elements (once emptying data)
+        // enter - only applies to incoming elements (once emptying data) 
         var bubblesE = vis.enter().append('circle')
           .classed('bubble', true)
           .attr('r', 0)
@@ -512,14 +431,14 @@ function handleBubbleData (datas) {
           .attr('r', function(d) { return 0; })
           .style("fill", function(d, i) {
             return z(i); })
-          .attr('class', function(d, i) {
+          .attr('class', function(d, i) { 
             d3.select('.legendLeft')
             .append('div')
             .attr('data-category', d.data.name)
             .style('fill', z(i))
             .style('background', z(i))
             .attr('class', 'goal' + d.data.name);
-            return 'goal' + d.data.name;
+            return 'goal' + d.data.name; 
           })
           .transition()
           .duration(duration * 1.2)
@@ -539,17 +458,16 @@ function handleBubbleData (datas) {
         // Set initial layout to single group.
         groupBubbles();
 
-
         // exit
         vis.exit()
           .transition()
           .duration(duration)
-          .attr('transform', function(d) {
+          .attr('transform', function(d) { 
             var dy = d.y - diameter/2;
             var dx = d.x - diameter/2;
             var theta = Math.atan2(dy,dx);
             var destX = diameter * (1 + Math.cos(theta) )/ 2;
-            var destY = diameter * (1 + Math.sin(theta) )/ 2;
+            var destY = diameter * (1 + Math.sin(theta) )/ 2; 
             return 'translate(' + destX + ',' + destY + ')'; })
           .attr('r', function(d) { return 0; })
           .remove();
@@ -561,11 +479,6 @@ function handleBubbleData (datas) {
           .attr('cy', function (d) { return d.y/2; });
       }
 
-      function nodeYearPos(d) {
-        console.log(d);
-        return yearCenters[d.data.month].x;
-      }
-
       function groupBubbles() {
 
         // @v4 Reset the 'x' force to draw the bubbles to the center.
@@ -573,42 +486,6 @@ function handleBubbleData (datas) {
 
         // @v4 We can reset the alpha value and restart the simulation
         simulation.alpha(1).restart();
-      }
-
-      function splitBubbles() {
-        console.log('ya')
-        showYearTitles();
-
-        // @v4 Reset the 'x' force to draw the bubbles to their year centers
-        simulation.force('x', d3.forceX().strength(forceStrength).x(nodeYearPos));
-
-        // @v4 We can reset the alpha value and restart the simulation
-        simulation.alpha(1).restart();
-      }
-
-      /*
-       * Hides Year title displays.
-       */
-      function hideYearTitles() {
-        svg.selectAll('.year').remove();
-      }
-
-      /*
-       * Shows Year title displays.
-       */
-      function showYearTitles() {
-        // Another way to do this would be to create
-        // the year texts once and then just hide them.
-        var yearsData = d3.keys(yearsTitleY);
-        var years = svg.selectAll('.year')
-          .data(yearsData);
-
-        years.enter().append('text')
-          .attr('class', 'year')
-          .attr('y', function (d) { return yearsTitleY[d]; })
-          .attr('x', 20)
-          .attr('text-anchor', 'middle')
-          .text(function (d) { return d; });
       }
 
       function processData(data) {
@@ -623,5 +500,4 @@ function handleBubbleData (datas) {
         return {children: newDataSet};
       }
     }
-
 }
