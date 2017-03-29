@@ -1,5 +1,6 @@
 d3.queue()
-  .defer(d3.json, 'europeFinal.json')
+  .defer(d3.json, 'failed_europe_filtered_changedID.json')
+  .defer(d3.json, 'success_europe_filtered_changedID.json')
   .await(onDataLoaded);
 
 function onDataLoaded(error, data) {
@@ -87,7 +88,7 @@ function handleBubbleData (datas) {
         .attr("height", height + margin.top + margin.bottom - 60)
         .attr("vertical-align", "top")
         // classic transform to position g
-        .attr("transform", "translate(" + margin.left + ", 0)");
+        .attr("transform", "translate(" + margin.left + ", -10)");
 
       sv.append("g")
         .attr("class", "x axis")
@@ -135,9 +136,9 @@ function handleBubbleData (datas) {
           brush.extent([[0, 0], [0, 0]]);
           handles.attr("transform", "translate(" + timeScale(value) + ",0)");
           handles.select('text').text(formatDate(value));
-
+          
           if (d3.event.type === 'end') {
-
+            
             d3.selectAll("circle").remove();
             d3.select(".bubLegend").remove();
             tooltip.hideTooltip();
@@ -195,6 +196,10 @@ function handleBubbleData (datas) {
       var width = 940;
       var height = 600;
       var center = { x: width / 2, y: height / 2 };
+      var sortable = [];      
+      var bubble = d3.pack()
+        .size([diameter, diameter]) // new data is loaded to bubble layout
+        .padding(3);
 
 
       // Here we create a force layout and
@@ -241,6 +246,7 @@ function handleBubbleData (datas) {
       for (var i = 0; i < data.length; i++) {
         var obj = {};
         var cat = json.sub_category;
+
         if (data[i].category.name.toLowerCase() === cat.toLowerCase()) {
           var date = new Date(1000*data[i].launched_at);
           var month = format(date);
@@ -269,7 +275,6 @@ function handleBubbleData (datas) {
         sortedArr = arr.sort(function(x, y){
           return d3.ascending(x.Goal, y.Goal);
         });
-
 
         a[count + '-' + countEnd] = [];
         b.goals = [];
@@ -324,13 +329,20 @@ function handleBubbleData (datas) {
           } 
         }
 
-        statPerc = totalPledged/totalGoals * 100;
-        statScore = statPerc/4;
+        for (var l in a) {
+            sortable.push([l, a[l].range]);
+        }
 
-        /* D3 Bubble Chart */      
-        var bubble = d3.pack()
-            .size([diameter, diameter]) // new data is loaded to bubble layout
-            .padding(3);
+        sortable.sort(function(a, b) {
+            return b[1] - a[1];
+        });
+
+        document.getElementById('info-3').innerHTML = sortable[0][0]
+
+        statPerc = totalPledged/totalGoals * 100;
+        statScore = statPerc/4 > 25 ? 25 : statPerc/4;
+
+        /* D3 Bubble Chart */
         var r = d3.hierarchy(processData(a))
           .sum(function(d) { return d.size; })
           .sort(function(a, b) { return b.value - a.value; });
@@ -480,7 +492,6 @@ function handleBubbleData (datas) {
       }
 
       function groupBubbles() {
-
         // @v4 Reset the 'x' force to draw the bubbles to the center.
         simulation.force('x', d3.forceX().strength(forceStrength).x(center.x));
 
