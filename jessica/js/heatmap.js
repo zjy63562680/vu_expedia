@@ -969,7 +969,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
                             highlightCategory(subcategory);
                             break
                         }
-                        case 'scuplture':{
+                        case 'sculpture':{
                             var category      = 'cat-0',
                                 subcategory   = 'cat-6';
                             changeStates(category, canvas, cards, axis, cardHeight, legendHeight);
@@ -2166,7 +2166,6 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
 
             // Updates main template
             updateTemplate(e.detail.category, e.detail.subcategory, monthNames);
-            console.log(e.detail.subcategory);
         }
 
     }, false);
@@ -2342,7 +2341,7 @@ function changeStates(state, canvas, cards, axis, cardHeight, legendHeight) {
     function repositionVisuals(categoryid, subcategories) {
 
         if (!legendHeight) {
-            console.log('ERROR');
+            console.log('ERROR: heatmap - no legend height passed');
             return;
         }
 
