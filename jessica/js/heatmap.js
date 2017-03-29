@@ -1,7 +1,7 @@
-d3.queue()
+d3v4.queue()
 
-    .defer(d3.csv, 'jessica/data/_failed.csv')
-    .defer(d3.csv, 'jessica/data/_succes.csv')
+    .defer(d3v4.csv, 'jessica/data/_failed.csv')
+    .defer(d3v4.csv, 'jessica/data/_succes.csv')
     .await(onDataLoaded);
 
 function onDataLoaded(error, dataSucess, dataFailed) {
@@ -16,13 +16,13 @@ function onDataLoaded(error, dataSucess, dataFailed) {
 
 function handleData(dataFailed, dataSucess){
 
-    var data = d3.merge([dataFailed, dataSucess]);
+    var data = d3v4.merge([dataFailed, dataSucess]);
     structureData(data);
 }
 
 function structureData(data) {
 
-    var filteredData = d3.nest()
+    var filteredData = d3v4.nest()
 
        // Nest by month
        .key(function(d) {
@@ -30,19 +30,19 @@ function structureData(data) {
                timestampDate = new Date(timestampRaw), // Converts integer into date object
                timestampMonth = timestampDate.getMonth(); // Gets the month from the date object
            return timestampMonth;
-       }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
+       }).sortKeys((a, b) => d3v4.ascending(+a, +b)) // Sort by numerical value
 
        // Nest by category
        .key(function(d) {
            d.parentid = d['category/parent_id'];
            return d.parentid;
-       }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
+       }).sortKeys((a, b) => d3v4.ascending(+a, +b)) // Sort by numerical value
 
        // Nest by subcategory
        .key(function(d) {
            d.categoryid = d['category/id'];
            return d.categoryid;
-       }).sortKeys((a, b) => d3.ascending(+a, +b)) // Sort by numerical value
+       }).sortKeys((a, b) => d3v4.ascending(+a, +b)) // Sort by numerical value
 
        // Nest by state (successful / failed)
        .key(function(d) {
@@ -727,7 +727,7 @@ function createVisualisation(data) {
         canvasHeight = (cardHeight * 35) + legendHeight,
         gridSize = Math.floor(canvasWidth / 24);
 
-    var canvas = d3.select(".viz-3")
+    var canvas = d3v4.select(".viz-3")
         .append("svg:svg")
         .attr("width", canvasWidthTotal)
         .attr("height", canvasHeight)
@@ -2374,7 +2374,7 @@ function changeStates(state, canvas, cards, axis, cardHeight, legendHeight) {
 
         if (categoryid === 'cat-all') {
 
-            var totalCategories = d3.merge([categories, subcategories]),
+            var totalCategories = d3v4.merge([categories, subcategories]),
                 totalCategories = _.uniqBy(totalCategories);
 
         } else {

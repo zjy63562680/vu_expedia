@@ -1,6 +1,6 @@
-d3.queue()
-  .defer(d3.json, 'failed_europe_filtered_changedID.json')
-  .defer(d3.json, 'success_europe_filtered_changedID.json')
+d3v4.queue()
+  .defer(d3v4.json, 'failed_europe_filtered_changedID.json')
+  .defer(d3v4.json, 'success_europe_filtered_changedID.json')
   .await(onDataLoaded);
 
 function onDataLoaded(error, data) {
@@ -15,13 +15,13 @@ function onDataLoaded(error, data) {
 var json = {"category": "Videos", "sub_category": "Video Games", "goal": "200", "pledged": "0"};
 
 function handleBubbleData (datas) {
-  d3.select('.bubs').remove();
-  d3.select(".bubLegend").remove();
+  d3v4.select('.bubs').remove();
+  d3v4.select(".bubLegend").remove();
   var data = datas.data;
   var columns = ["Pledged", "Goal"];
   var keys = columns;
   var picker = document.getElementById('dataCenterPicker');
-  var format = d3.timeFormat('%B');
+  var format = d3v4.timeFormat('%B');
   var dateValue;
   var bubbleCardHeight = 30,
     bubbleCanvasWidth = 900,
@@ -31,7 +31,7 @@ function handleBubbleData (datas) {
     bubbleCanvasWidthTotal = bubbleCanvasWidth + (bubbleCardWidth * 2),
     bubbleCanvasHeight = (bubbleCardHeight * 35) + bubbleLegendHeight,
     bubbleGridSize = Math.floor(bubbleCanvasWidth / 24);
-  var svg = d3.select(".viz-2")
+  var svg = d3v4.select(".viz-2")
     .append("svg:svg")
     .attr("width", bubbleCanvasWidth - 200)
     .attr("height", bubbleCanvasHeight/2)
@@ -62,12 +62,12 @@ function handleBubbleData (datas) {
         },
         width = 700 - margin.left - margin.right,
         height = 300 - margin.bottom - margin.top;
-      var formatDate = d3.timeFormat("%B");
-      var x = d3.scaleLinear().range([0, width]);
+      var formatDate = d3v4.timeFormat("%B");
+      var x = d3v4.scaleLinear().range([0, width]);
 
 
       // scale function
-      var timeScale = d3.scaleTime()
+      var timeScale = d3v4.scaleTime()
         .domain([new Date('2012-01-02'), new Date('2013-01-01')])
         .range([0, width])
         .clamp(true);
@@ -78,7 +78,7 @@ function handleBubbleData (datas) {
       //////////
 
       // defines brush
-      var brush = d3.brushX()
+      var brush = d3v4.brushX()
           .extent([[0, 0], [600, 60]])
           .on("start brush end", brushed);
 
@@ -95,7 +95,7 @@ function handleBubbleData (datas) {
       // put in middle of screen
       .attr("transform", "translate(0," + height / 4 + ")")
       // inroduce axis
-      .call(d3.axisBottom()
+      .call(d3v4.axisBottom()
         .scale(timeScale)
         .tickFormat(function(d) {
           return formatDate(d);
@@ -129,22 +129,22 @@ function handleBubbleData (datas) {
         .style('display', 'block');
 
       function brushed() {
-        var value = d3.brushSelection(d3.select(".slider").node());
+        var value = d3v4.brushSelection(d3v4.select(".slider").node());
 
-        if (d3.event && d3.event.sourceEvent) {
-          value = timeScale.invert(d3.mouse(this)[0]);
+        if (d3v4.event && d3v4.event.sourceEvent) {
+          value = timeScale.invert(d3v4.mouse(this)[0]);
           brush.extent([[0, 0], [0, 0]]);
           handles.attr("transform", "translate(" + timeScale(value) + ",0)");
           handles.select('text').text(formatDate(value));
-          
-          if (d3.event.type === 'end') {
-            
-            d3.selectAll("circle").remove();
-            d3.select(".bubLegend").remove();
+
+          if (d3v4.event.type === 'end') {
+
+            d3v4.selectAll("circle").remove();
+            d3v4.select(".bubLegend").remove();
             tooltip.hideTooltip();
             dateValue = formatDate(value);
             getData(dateValue, 'mean');
-          }  
+          }
         }
       }
     }
@@ -163,20 +163,20 @@ function handleBubbleData (datas) {
       var diameter = Math.min(bubbleCanvasWidth, bubbleCanvasHeight/2) - 80;
 
       var colorrange = ['#DF4949', '#E27A3F', '#EFC94C', '#9B59B6', '#3498db',
-        '#F495A3', '#45B29D', '#293950', '#b60335', '#2d7108', '#320871', 
+        '#F495A3', '#45B29D', '#293950', '#b60335', '#2d7108', '#320871',
         '#71182b', '#64dcbe', '#9fdc64', '#9e5f28', '#ec2876', '#013639',
         '#39011d', '#9d00c4', '#771715'];
 
-      var z = d3.scaleOrdinal()
+      var z = d3v4.scaleOrdinal()
       .range(colorrange);
 
-      d3.select(".viz-2")
+      d3v4.select(".viz-2")
         .append('legend')
         .attr('class', 'bubLegend')
         .append('div')
         .html('Sort by: <a class="min" id="min">Min</a> / <a class="mean" id="mean">Mean</a> / <a class="max" id="max">Max</a><br><a id="clear" class="clear">Clear Filters</a>')
 
-      d3.select(".bubLegend")
+      d3v4.select(".bubLegend")
         .append('div')
         .attr('class', 'legendLeft');
 
@@ -196,8 +196,8 @@ function handleBubbleData (datas) {
       var width = 940;
       var height = 600;
       var center = { x: width / 2, y: height / 2 };
-      var sortable = [];      
-      var bubble = d3.pack()
+      var sortable = [];
+      var bubble = d3v4.pack()
         .size([diameter, diameter]) // new data is loaded to bubble layout
         .padding(3);
 
@@ -205,39 +205,39 @@ function handleBubbleData (datas) {
       // Here we create a force layout and
       // @v4 We create a force simulation now and
       //  add forces to it.
-      var simulation = d3.forceSimulation()
+      var simulation = d3v4.forceSimulation()
         .velocityDecay(0.2)
-        .force('x', d3.forceX().strength(forceStrength).x(center.x))
-        .force('y', d3.forceY().strength(forceStrength).y(center.y))
-        .force('charge', d3.forceManyBody().strength(charge))
+        .force('x', d3v4.forceX().strength(forceStrength).x(center.x))
+        .force('y', d3v4.forceY().strength(forceStrength).y(center.y))
+        .force('charge', d3v4.forceManyBody().strength(charge))
         .on('tick', ticked);
 
       // @v4 Force starts up automatically,
       //  which we don't want as there aren't any nodes yet.
       simulation.stop();
-    
+
       min.addEventListener('click', function (e) {
-        d3.selectAll("circle").remove();
-        d3.select(".bubLegend").remove();
+        d3v4.selectAll("circle").remove();
+        d3v4.select(".bubLegend").remove();
         dateValue = dateValue || null;
         getData(dateValue, 'min');
       });
       max.addEventListener('click', function (e) {
-        d3.selectAll("circle").remove();
-        d3.select(".bubLegend").remove();
+        d3v4.selectAll("circle").remove();
+        d3v4.select(".bubLegend").remove();
         dateValue = dateValue || null;
         getData(dateValue, 'max');
       });
       mean.addEventListener('click', function (e) {
-        d3.selectAll("circle").remove();
-        d3.select(".bubLegend").remove();
+        d3v4.selectAll("circle").remove();
+        d3v4.select(".bubLegend").remove();
         dateValue = dateValue || null;
         getData(dateValue, 'mean');
       });
       clear.addEventListener('click', function(e){
-        d3.selectAll("circle").remove();
-        d3.select(".bubLegend").remove();
-        d3.select('.slide').remove();
+        d3v4.selectAll("circle").remove();
+        d3v4.select(".bubLegend").remove();
+        d3v4.select('.slide').remove();
         dateValue = null;
         getData(null, 'mean');
         drawSlider();
@@ -273,7 +273,7 @@ function handleBubbleData (datas) {
 
       if (arr.length > 0) {
         sortedArr = arr.sort(function(x, y){
-          return d3.ascending(x.Goal, y.Goal);
+          return d3v4.ascending(x.Goal, y.Goal);
         });
 
         a[count + '-' + countEnd] = [];
@@ -308,17 +308,17 @@ function handleBubbleData (datas) {
           var avGoals, avPledged, sumGoals, sumPledged;
 
           if (a[k].goals) {
-            sumGoals = d3.sum(a[k].goals);
-            sumPledged = d3.sum(a[k].pledged);
+            sumGoals = d3v4.sum(a[k].goals);
+            sumPledged = d3v4.sum(a[k].pledged);
             if (stats === 'mean') {
               avGoals = sumGoals/a[k].goals.length;
               avPledged = sumPledged/a[k].pledged.length;
             } else if (stats === 'min') {
-              avGoals = d3.min(a[k].goals);
-              avPledged = d3.min(a[k].pledged);
+              avGoals = d3v4.min(a[k].goals);
+              avPledged = d3v4.min(a[k].pledged);
             } else if (stats === 'max') {
-              avGoals = d3.max(a[k].goals);
-              avPledged = d3.max(a[k].pledged);
+              avGoals = d3v4.max(a[k].goals);
+              avPledged = d3v4.max(a[k].pledged);
             }
 
             a[k].range = avPledged/avGoals;
@@ -326,7 +326,7 @@ function handleBubbleData (datas) {
             a[k].av_pledged = avPledged;
             totalGoals += sumGoals;
             totalPledged += sumPledged;
-          } 
+          }
         }
 
         for (var l in a) {
@@ -343,15 +343,15 @@ function handleBubbleData (datas) {
         statScore = statPerc/4 > 25 ? 25 : statPerc/4;
 
         /* D3 Bubble Chart */
-        var r = d3.hierarchy(processData(a))
+        var r = d3v4.hierarchy(processData(a))
           .sum(function(d) { return d.size; })
           .sort(function(a, b) { return b.value - a.value; });
 
         drawBubbles(a);
       } else {
-        d3.select('.slide').remove();
-        d3.select(".bubLegend").remove();
-        d3.select('.bubs')
+        d3v4.select('.slide').remove();
+        d3v4.select(".bubLegend").remove();
+        d3v4.select('.bubs')
         .append('text')
         .attr("transform", "translate(300, 100)")
         .style('display', 'block')
@@ -362,7 +362,7 @@ function handleBubbleData (datas) {
 
       function showDetail(d) {
         // change outline to indicate hover state.
-        d3.select(this).attr('stroke', 'black');
+        d3v4.select(this).attr('stroke', 'black');
         var content = '<span class="name">Category: </span><span class="value">' +
                       json.category +
                       '</span><br/>' +
@@ -385,7 +385,7 @@ function handleBubbleData (datas) {
                       mth +
                       '</span>';
 
-        tooltip.showTooltip(content, d3.event);
+        tooltip.showTooltip(content, d3v4.event);
       }
 
       /*
@@ -393,7 +393,7 @@ function handleBubbleData (datas) {
        */
       function hideDetail(d) {
         // reset outline
-        d3.select(this)
+        d3v4.select(this)
           .attr('stroke', 'none');
 
         svg.selectAll('.goal'+ position)
@@ -412,7 +412,7 @@ function handleBubbleData (datas) {
         // generate data with calculated layout values
         var nodes = bubble(r).descendants()
           .filter(function(d) { return !d.children; }); // filter out the outer bubble
-        // assign new data to existing DOM 
+        // assign new data to existing DOM
         nodes = nodes.sort(function(x, y){
           return Number(x.data.name.split('-')[0]) - Number(y.data.name.split('-')[0]);
         });
@@ -420,19 +420,19 @@ function handleBubbleData (datas) {
         var vis = svg.selectAll('circle')
           .data(nodes, function(d) { return d.data.name; });
         // enter data -> remove, so non-exist selections for upcoming data won't stay -> enter new data -> ...
-        // To chain transitions, 
-        // create the transition on the updating elements before the entering elements 
+        // To chain transitions,
+        // create the transition on the updating elements before the entering elements
         // because enter.append merges entering elements into the update selection
         var duration = 500;
         // update - this is created before enter.append. it only applies to updating nodes.
         /*vis.transition()
           .duration(duration)
-          .delay(function(d, i) {delay = i * 7; return delay;}) 
+          .delay(function(d, i) {delay = i * 7; return delay;})
           .attr('transform', function(d) { return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
           .attr('r', function(d) { return d.r; })
           .style('opacity', 1); // force to 1, so they don't get stuck below 1 at enter()
 */
-        // enter - only applies to incoming elements (once emptying data) 
+        // enter - only applies to incoming elements (once emptying data)
         var bubblesE = vis.enter().append('circle')
           .classed('bubble', true)
           .attr('r', 0)
@@ -443,14 +443,14 @@ function handleBubbleData (datas) {
           .attr('r', function(d) { return 0; })
           .style("fill", function(d, i) {
             return z(i); })
-          .attr('class', function(d, i) { 
-            d3.select('.legendLeft')
+          .attr('class', function(d, i) {
+            d3v4.select('.legendLeft')
             .append('div')
             .attr('data-category', d.data.name)
             .style('fill', z(i))
             .style('background', z(i))
             .attr('class', 'goal' + d.data.name);
-            return 'goal' + d.data.name; 
+            return 'goal' + d.data.name;
           })
           .transition()
           .duration(duration * 1.2)
@@ -458,7 +458,7 @@ function handleBubbleData (datas) {
           .attr('r', function(d) { return d.r/1.5; })
           .style('opacity', 1);
 
-        d3.selectAll('.goal'+ position)
+        d3v4.selectAll('.goal'+ position)
           .attr('stroke', '#000000')
           .attr('stroke-width', '4')
           .style('stroke', '#000000');
@@ -474,12 +474,12 @@ function handleBubbleData (datas) {
         vis.exit()
           .transition()
           .duration(duration)
-          .attr('transform', function(d) { 
+          .attr('transform', function(d) {
             var dy = d.y - diameter/2;
             var dx = d.x - diameter/2;
             var theta = Math.atan2(dy,dx);
             var destX = diameter * (1 + Math.cos(theta) )/ 2;
-            var destY = diameter * (1 + Math.sin(theta) )/ 2; 
+            var destY = diameter * (1 + Math.sin(theta) )/ 2;
             return 'translate(' + destX + ',' + destY + ')'; })
           .attr('r', function(d) { return 0; })
           .remove();
@@ -493,7 +493,7 @@ function handleBubbleData (datas) {
 
       function groupBubbles() {
         // @v4 Reset the 'x' force to draw the bubbles to the center.
-        simulation.force('x', d3.forceX().strength(forceStrength).x(center.x));
+        simulation.force('x', d3v4.forceX().strength(forceStrength).x(center.x));
 
         // @v4 We can reset the alpha value and restart the simulation
         simulation.alpha(1).restart();

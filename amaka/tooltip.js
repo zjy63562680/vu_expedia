@@ -1,7 +1,7 @@
 function floatingTooltip(tooltipId, width) {
   // Local variable to hold tooltip div for
   // manipulation in other functions.
-  var tt = d3.select('.viz-2')
+  var tt = d3v4.select('.viz-2')
     .append('div')
     .attr('class', 'tooltip')
     .attr('id', tooltipId)
@@ -20,7 +20,7 @@ function floatingTooltip(tooltipId, width) {
    *
    * content is expected to be HTML string.
    *
-   * event is d3.event for positioning.
+   * event is d3v4.event for positioning.
    */
   function showTooltip(content, event) {
     tt.style('opacity', 1.0)
