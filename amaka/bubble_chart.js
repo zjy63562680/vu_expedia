@@ -6,13 +6,13 @@ function onDataLoaded(error, data) {
     if (error) {
         console.log('Error log: ' + error);
     } else {
-        handleData(data);
+        handleBubbleData(data);
     }
 }
 
 
 var json = {"category": "Videos", "sub_category": "Video Games", "goal": "200", "pledged": "0"};
-function handleData (datas) {
+function handleBubbleData (datas) {
   d3.select('svg').remove();
   d3.select("legend").remove();
   var data = datas.data;
@@ -36,11 +36,12 @@ function handleData (datas) {
     .attr('class', 'bubs')
     .attr('id', 'chart');
 
-      var tooltip = floatingTooltip('gates_tooltip', 240);
+  var tooltip = floatingTooltip('gates_tooltip', 240);
 
 
    window.addEventListener('urlHandled', function (e) {
       handleData(datas);
+      setupButtons();
       if(e.detail) {
         json = e.detail;
       }
@@ -194,6 +195,37 @@ function handleData (datas) {
       var height = 600;
       var center = { x: width / 2, y: height / 2 };
 
+  var yearCenters = {
+    January: { x: width / 3, y: height / 2 },
+    February: { x: width / 2, y: height / 2 },
+    March: { x: 2 * width / 3, y: height / 2 },
+    April: { x: 3 * width / 3, y: height / 2 },
+    May: { x: 4 * width / 3, y: height / 2 },
+    June: { x: 5 * width / 3, y: height / 2 },
+    July: { x: 6 * width / 3, y: height / 2 },
+    August: { x: 7 * width / 3, y: height / 2 },
+    September: { x: 8 * width / 3, y: height / 2 },
+    October: { x: 9 * width / 3, y: height / 2 },
+    November: { x: 10 * width / 3, y: height / 2 },
+    December: { x: 2 * width / 3, y: height / 2 }
+  };
+
+  // X locations of the year titles.
+  var yearsTitleY = {
+    Jan: 20,
+    Feb: width / 2 - 400,
+    Mar: width / 2 - 350,
+    Apr: width / 2 - 300,
+    May: width/2 - 250,
+    Jun: width/2 - 200,
+    Jul: width/2 - 150,
+    Aug: width/2 - 100,
+    Sep: width/2 - 50,
+    Oct: width/2,
+    Nov: width/2 + 50,
+    Dec: width/2 + 100
+  };
+
       // Here we create a force layout and
       // @v4 We create a force simulation now and
       //  add forces to it.
@@ -232,7 +264,7 @@ function handleData (datas) {
         d3.select('.slide').remove();
         dateValue = null;
         getData(null, 'mean');
-        drawSlider();
+        //drawSlider();
       }, false);
 
       for (var i = 0; i < data.length; i++) {
@@ -278,6 +310,7 @@ function handleData (datas) {
               if (Number(key) <= countEnd) {
                 b.goals.push(sortedArr[j].Goal);
                 b.pledged.push(sortedArr[j].Pledged);
+                b.month = sortedArr[j].Month;
                 a[count + '-' + countEnd] = b;
 
                 if (json.goal.split('.0')[0] > count && json.goal.split('.0')[0] < countEnd) {
@@ -287,6 +320,7 @@ function handleData (datas) {
                 b = {};
                 b.goals = [];
                 b.pledged = [];
+                b.month = [];
                 count += 1000;
                 countEnd += 1000;
               }
@@ -388,6 +422,58 @@ function handleData (datas) {
 
         tooltip.hideTooltip();
       }
+      //setupButtons();
+      function setupButtons() {
+        d3.select('.viz-2')
+          .append('button')
+          .html('Year')
+          .attr('id', 'year')
+          .on('click', function () {
+            // Remove active class from all buttons
+            d3.selectAll('button').classed('active', false);
+            // Find the button just clicked
+            var button = d3.select(this);
+
+            // Set it as the active button
+            button.classed('active', true);
+
+            // Get the id of the button
+            var buttonId = button.attr('id');
+
+            // Toggle the bubble chart based on
+            // the currently clicked button.
+            toggleDisplay(buttonId);
+          });
+
+          d3.select('.viz-2')
+          .append('button')
+          .html('Clear')
+          .on('click', function () {
+            // Remove active class from all buttons
+            d3.selectAll('button').classed('active', false);
+            // Find the button just clicked
+            var button = d3.select(this);
+
+            // Set it as the active button
+            button.classed('active', true);
+
+            // Get the id of the button
+            var buttonId = button.attr('id');
+
+            // Toggle the bubble chart based on
+            // the currently clicked button.
+            toggleDisplay(buttonId);
+          });
+      }
+
+      function toggleDisplay(displayName) {
+        console.log(displayName)
+        if (displayName === 'year') {
+          splitBubbles();
+        } else {
+          groupBubbles();
+        }
+      }
 
       function drawBubbles(c) {
         // @v4 strength to apply to the position forces
@@ -475,6 +561,11 @@ function handleData (datas) {
           .attr('cy', function (d) { return d.y/2; });
       }
 
+      function nodeYearPos(d) {
+        console.log(d);
+        return yearCenters[d.data.month].x;
+      }
+
       function groupBubbles() {
 
         // @v4 Reset the 'x' force to draw the bubbles to the center.
@@ -484,13 +575,50 @@ function handleData (datas) {
         simulation.alpha(1).restart();
       }
 
+      function splitBubbles() {
+        console.log('ya')
+        showYearTitles();
+
+        // @v4 Reset the 'x' force to draw the bubbles to their year centers
+        simulation.force('x', d3.forceX().strength(forceStrength).x(nodeYearPos));
+
+        // @v4 We can reset the alpha value and restart the simulation
+        simulation.alpha(1).restart();
+      }
+
+      /*
+       * Hides Year title displays.
+       */
+      function hideYearTitles() {
+        svg.selectAll('.year').remove();
+      }
+
+      /*
+       * Shows Year title displays.
+       */
+      function showYearTitles() {
+        // Another way to do this would be to create
+        // the year texts once and then just hide them.
+        var yearsData = d3.keys(yearsTitleY);
+        var years = svg.selectAll('.year')
+          .data(yearsData);
+
+        years.enter().append('text')
+          .attr('class', 'year')
+          .attr('y', function (d) { return yearsTitleY[d]; })
+          .attr('x', 20)
+          .attr('text-anchor', 'middle')
+          .text(function (d) { return d; });
+      }
+
       function processData(data) {
         if(!data) return;
         var obj = data;
         var newDataSet = [];
 
         for(var prop in obj) {
-          newDataSet.push({name: prop, className: prop.toLowerCase().replace(/ /g,''), size: obj[prop].range, av_pledged: obj[prop].av_pledged, av_goal: obj[prop].av_goal});
+          newDataSet.push({name: prop, className: prop.toLowerCase().replace(/ /g,''), size: obj[prop].range, av_pledged: obj[prop].av_pledged, av_goal: obj[prop].av_goal,
+        month: obj[prop].month});
         }
         return {children: newDataSet};
       }
