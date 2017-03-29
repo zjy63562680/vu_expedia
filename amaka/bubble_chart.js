@@ -1,5 +1,5 @@
 d3.queue()
-    .defer(d3.json, 'europeFinal.json')
+    .defer(d3.json, 'data/europeFinal.json')
     .await(onDataLoaded);
 
 function onDataLoaded(error, data) {
@@ -13,7 +13,7 @@ function onDataLoaded(error, data) {
 
 var json = {"category": "Videos", "sub_category": "Video Games", "goal": "200", "pledged": "0"};
 function handleBubbleData (datas) {
-  d3.select('svg').remove();
+  d3.select('svg.bubs').remove();
   d3.select("legend").remove();
   var data = datas.data;
   var columns = ["Pledged", "Goal"];
@@ -142,7 +142,7 @@ function handleBubbleData (datas) {
             tooltip.hideTooltip();
             dateValue = formatDate(value);
             getData(dateValue, 'mean');
-          }  
+          }
         }
       }
     }
@@ -161,7 +161,7 @@ function handleBubbleData (datas) {
       var diameter = Math.min(canvasWidth, canvasHeight/2) - 80;
 
       var colorrange = ['#DF4949', '#E27A3F', '#EFC94C', '#9B59B6', '#3498db',
-        '#F495A3', '#45B29D', '#293950', '#b60335', '#2d7108', '#320871', 
+        '#F495A3', '#45B29D', '#293950', '#b60335', '#2d7108', '#320871',
         '#71182b', '#64dcbe', '#9fdc64', '#9e5f28', '#ec2876', '#013639',
         '#39011d', '#9d00c4', '#771715'];
 
@@ -239,7 +239,7 @@ function handleBubbleData (datas) {
       // @v4 Force starts up automatically,
       //  which we don't want as there aren't any nodes yet.
       simulation.stop();
-    
+
       min.addEventListener('click', function (e) {
         d3.selectAll("circle").remove();
         d3.select("legend").remove();
@@ -350,13 +350,13 @@ function handleBubbleData (datas) {
             a[k].av_pledged = avPledged;
             totalGoals += sumGoals;
             totalPledged += sumPledged;
-          } 
+          }
         }
 
         statPerc = totalPledged/totalGoals * 100;
         statScore = statPerc/4;
 
-        /* D3 Bubble Chart */      
+        /* D3 Bubble Chart */
         var bubble = d3.pack()
             .size([diameter, diameter]) // new data is loaded to bubble layout
             .padding(3);
@@ -481,7 +481,7 @@ function handleBubbleData (datas) {
         // generate data with calculated layout values
         var nodes = bubble(r).descendants()
           .filter(function(d) { return !d.children; }); // filter out the outer bubble
-        // assign new data to existing DOM 
+        // assign new data to existing DOM
         nodes = nodes.sort(function(x, y){
           return Number(x.data.name.split('-')[0]) - Number(y.data.name.split('-')[0]);
         });
@@ -489,19 +489,19 @@ function handleBubbleData (datas) {
         var vis = svg.selectAll('circle')
           .data(nodes, function(d) { return d.data.name; });
         // enter data -> remove, so non-exist selections for upcoming data won't stay -> enter new data -> ...
-        // To chain transitions, 
-        // create the transition on the updating elements before the entering elements 
+        // To chain transitions,
+        // create the transition on the updating elements before the entering elements
         // because enter.append merges entering elements into the update selection
         var duration = 500;
         // update - this is created before enter.append. it only applies to updating nodes.
         /*vis.transition()
           .duration(duration)
-          .delay(function(d, i) {delay = i * 7; return delay;}) 
+          .delay(function(d, i) {delay = i * 7; return delay;})
           .attr('transform', function(d) { return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
           .attr('r', function(d) { return d.r; })
           .style('opacity', 1); // force to 1, so they don't get stuck below 1 at enter()
 */
-        // enter - only applies to incoming elements (once emptying data) 
+        // enter - only applies to incoming elements (once emptying data)
         var bubblesE = vis.enter().append('circle')
           .classed('bubble', true)
           .attr('r', 0)
@@ -512,14 +512,14 @@ function handleBubbleData (datas) {
           .attr('r', function(d) { return 0; })
           .style("fill", function(d, i) {
             return z(i); })
-          .attr('class', function(d, i) { 
+          .attr('class', function(d, i) {
             d3.select('.legendLeft')
             .append('div')
             .attr('data-category', d.data.name)
             .style('fill', z(i))
             .style('background', z(i))
             .attr('class', 'goal' + d.data.name);
-            return 'goal' + d.data.name; 
+            return 'goal' + d.data.name;
           })
           .transition()
           .duration(duration * 1.2)
@@ -544,12 +544,12 @@ function handleBubbleData (datas) {
         vis.exit()
           .transition()
           .duration(duration)
-          .attr('transform', function(d) { 
+          .attr('transform', function(d) {
             var dy = d.y - diameter/2;
             var dx = d.x - diameter/2;
             var theta = Math.atan2(dy,dx);
             var destX = diameter * (1 + Math.cos(theta) )/ 2;
-            var destY = diameter * (1 + Math.sin(theta) )/ 2; 
+            var destY = diameter * (1 + Math.sin(theta) )/ 2;
             return 'translate(' + destX + ',' + destY + ')'; })
           .attr('r', function(d) { return 0; })
           .remove();
