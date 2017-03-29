@@ -2252,11 +2252,11 @@ function updateTemplate(category, subcategory, monthNames) {
         textEl.classList.add('success');
     }
 
-    var monthScore = (monthAverage - yearAverage).toString();
+    window.monthScore = (((monthAverage - yearAverage) / 2) + 50) / 4;
 
     infoCopy = "<span>"+recommendedMonths+"</span>";
 
-    averageCopy = '<ul><li>The average for <strong>'+monthNames[currentMonth]+'</strong> is <strong>'+ monthAverage+'%</strong></li><li>The yearly average for <strong>' + subcategory + '</strong> is <strong>'+  yearAverage + '%</strong>.</li></ul>';
+    averageCopy = '<ul><li>The average success score for <strong>'+monthNames[currentMonth]+'</strong> is <strong>'+ monthAverage+'%</strong></li><li>The yearly average success score for <strong>' + subcategory + '</strong> is <strong>'+  yearAverage + '%</strong>.</li></ul>';
 
     // Updates text
     infoEl.innerHTML = infoCopy + averageCopy;
