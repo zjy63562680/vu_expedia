@@ -103,8 +103,8 @@
 
 
 #info-2 .cust-info span {
-    font-size: 4rem;
-    font-weight: bold;
+    font-weight: 500;
+    font-size: 40px;
     color: black;
     width: 100%;
     line-height: 1;

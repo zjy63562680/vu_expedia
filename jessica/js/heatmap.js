@@ -2165,7 +2165,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
             }
 
             // Updates main template
-            updateTemplate(e.detail.category, e.detail.subcategory, monthNames);
+            updateTemplate(e.detail.category, e.detail.sub_category, monthNames);
         }
 
     }, false);
@@ -2173,14 +2173,20 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
 
 function updateTemplate(category, subcategory, monthNames) {
 
-    var templateSection  = document.getElementById('info-2');
-        activeCards      = document.querySelectorAll('.heatmap .card.active'),
-        yAxisLabels      = document.querySelectorAll('.heatmap .axis-x'),
-        currentMonth     = new Date().getMonth(),
-        percentiles      = [],
-        monthAverage     = 0;
+    var templateSection   = document.getElementById('info-2');
+        activeCards       = document.querySelectorAll('.heatmap .card.active'),
+        yAxisLabels       = document.querySelectorAll('.heatmap .axis-x'),
+        currentMonth      = new Date().getMonth(),
+        percentiles       = [],
+        monthAverage      = 0,
+        recommendedMonths = [];
+
+        var highestMonths = [],
+            highest = 0;
 
     _.map(activeCards, function (el) {
+
+
         var xCoordinate = el.querySelector('rect').getAttribute('x'),
             monthOrder  = (xCoordinate / 75) - 2;
 
@@ -2188,8 +2194,28 @@ function updateTemplate(category, subcategory, monthNames) {
                 monthAverage = el.dataset.percentile;
             }
 
+            if (el.dataset.percentile >= highest * 0.9) {
+                highest = el.dataset.percentile;
+
+                month = {
+                    'month': monthNames[monthOrder],
+                    'value' : el.dataset.percentile
+                }
+
+                highestMonths.push(month);
+            }
+
         percentiles.push(parseInt(el.dataset.percentile));
+
     });
+
+    highestMonths.forEach(function(month,i ) {
+        if (month.value == highest) {
+            recommendedMonths.push(month.month);
+        }
+    });
+
+    recommendedMonths = recommendedMonths.join(", ");
 
     // Adds up average over the year for active category
     var totalAverage = percentiles.reduce(function(a, b) { return a + b; }, 0),
@@ -2205,14 +2231,12 @@ function updateTemplate(category, subcategory, monthNames) {
         textCopy  = '';
 
     if (monthAverage < yearAverage) {
-        infoCopy = '<span class="fail">' + (monthAverage - yearAverage).toString() + '%</span>',
-        textCopy = 'We recommend waiting for a month with a higher average success rate.';
+        textCopy = 'You should wait for one of the recommended months to launch your project.';
         if(textEl.classList.contains('success')) {
             textEl.classList.remove('success');
         }
         textEl.classList.add('fail');
     } else if (monthAverage === yearAverage) {
-        infoCopy = '<span>Neutral</span>',
         textCopy = 'Now is a safe time as it is exactly average, however if you have time, we recommend waiting for a month with a higher average success rate.';
         if(textEl.classList.contains('success')) {
             textEl.classList.remove('success');
@@ -2221,13 +2245,16 @@ function updateTemplate(category, subcategory, monthNames) {
             textEl.classList.remove('fail');
         }
     } else {
-        infoCopy = '<span class="success">+' + (monthAverage - yearAverage).toString() + '%</span>',
         textCopy = 'This is a good time to launch your project.'
         if(textEl.classList.contains('fail')) {
             textEl.classList.remove('fail');
         }
         textEl.classList.add('success');
     }
+
+    var monthScore = (monthAverage - yearAverage).toString();
+
+    infoCopy = "<span>"+recommendedMonths+"</span>";
 
     averageCopy = '<ul><li>The average for <strong>'+monthNames[currentMonth]+'</strong> is <strong>'+ monthAverage+'%</strong></li><li>The yearly average for <strong>' + subcategory + '</strong> is <strong>'+  yearAverage + '%</strong>.</li></ul>';
 
