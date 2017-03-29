@@ -2173,7 +2173,7 @@ function bindEvents(cardHeight, legendHeight, monthNames) {
 
 function updateTemplate(category, subcategory, monthNames) {
 
-    var templateSection  = document.getElementById('info-3');
+    var templateSection  = document.getElementById('info-2');
         activeCards      = document.querySelectorAll('.heatmap .card.active'),
         yAxisLabels      = document.querySelectorAll('.heatmap .axis-x'),
         currentMonth     = new Date().getMonth(),
