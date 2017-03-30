@@ -2,7 +2,7 @@
 function maps(project){
   console.log(project);
 
-    text =  project ;
+    // text =  project ;`
         d3.json("../data/success_europe_filtered_changedID.json",function(data){
             var list_values = [];
             var countries = {};
@@ -10,7 +10,7 @@ function maps(project){
 
 
            data['data'].forEach(function(element) {
-                if (element['category']['name'] === text){
+                if (element['category']['name'] === project){
                     countries[element['location']['country']] = (countries[element['location']['country']] || 0) + 1;
                     };
              });
