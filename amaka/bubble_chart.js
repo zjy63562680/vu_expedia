@@ -13,7 +13,8 @@ function onDataLoaded(error, data) {
 
 
 var json = {"category": "Videos", "sub_category": "Video Games", "goal": "200", "pledged": "0"};
-
+var statPerc;
+console.log(json);
 function handleBubbleData (datas) {
   d3v4.select('.bubs').remove();
   d3v4.select(".bubLegend").remove();
@@ -41,17 +42,17 @@ function handleBubbleData (datas) {
   var tooltip = floatingTooltip('gates_tooltip', 240);
 
 
-   window.addEventListener('urlHandled', function (e) {
-      handleBubbleData(datas);
-      if(e.detail) {
-        json = e.detail;
-      }
-    });
+  window.addEventListener('urlHandled', function (e) {
+    handleBubbleData(datas);
+    if(e.detail) {
+      json = e.detail;
+    }
+  });
 
-    drawSlider();
-    getData(null, 'mean');
+  drawSlider();
+  getData(null, 'mean');
 
-    function drawSlider () {
+  function drawSlider () {
       // parameters
       var margin = {
           top: 50,
@@ -246,9 +247,11 @@ function handleBubbleData (datas) {
       for (var i = 0; i < data.length; i++) {
         var obj = {};
         var ob = {};
-        var cat = json.sub_category;
+        var category = json.category;
+        var sub_category = json.sub_category
 
-        if (data[i].category.name.toLowerCase() === cat.toLowerCase()) {
+        if (data[i].category && data[i].category.name.toLowerCase() === category.toLowerCase() ||
+          (sub_category && data[i].category.name.toLowerCase() === sub_category.toLowerCase())) {
           var date = new Date(1000*data[i].launched_at);
           var month = format(date);
 
@@ -368,18 +371,13 @@ function handleBubbleData (datas) {
             return b[1] - a[1];
         });
 
-        $('.goal-range span').html(sortable[0][0]);
+        if (json.title) {
+          $('.goal-range span').html(sortable[0][0]);
+        }
 
         statPerc = totalPledged/totalGoals * 25;
-
-
-        var event = new CustomEvent('computeAverageScore', {
-          'detail': {
-            'averageScore'     : statPerc
-          }
-        });
-        window.dispatchEvent(event);
-
+        
+        window.averageScore = statPerc;
         /* D3 Bubble Chart */
         var r = d3v4.hierarchy(processData(a))
           .sum(function(d) { return d.size; })

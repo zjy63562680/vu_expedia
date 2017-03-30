@@ -27,7 +27,7 @@ var line = d3v4.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.value); });
 
-d3v4.tsv("../data/file.txt", type, function(error, data) {
+d3v4.tsv("../data/file1.txt", type, function(error, data) {
   if (error) throw error;
 
 
@@ -92,6 +92,7 @@ d3v4.tsv("../data/file.txt", type, function(error, data) {
 });
 
 function type(d, i, columns) {
+  console.log(d);
   if (!months) monthKeys = columns.slice(1), months = monthKeys.map(monthParse);
   var c = {name: d.name.replace(/ (msa|necta div|met necta|met div)$/i, ""), values: null};
   c.values = monthKeys.map(function(k, i) { return {city: c, date: months[i], value: d[k] / 100}; });

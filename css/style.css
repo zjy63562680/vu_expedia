@@ -103,7 +103,7 @@
 
 
 .cust-info span {
-    font-weight: 500;
+  font-weight: 500;
     font-size: 40px;
     color: black;
     width: 100%;
@@ -233,7 +233,6 @@
 
 .cust-overview h2 {
     padding: 8px 16px;
-    text-transform: capitalize;
 }
 
 .cust-aside .mdl-card {
@@ -374,4 +373,36 @@
 
 .viz-2 .tooltip .name {
   font-weight:bold;
+}
+
+/* Trend Graph */
+.viz-4 .axis--y path {
+  display: none;
+}
+
+.viz-4 .cities {
+  fill: none;
+  stroke: #aaa;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 1.5px;
+}
+
+.viz-4 .city--hover {
+  stroke: #000;
+}
+
+.viz-4 .focus text {
+  text-anchor: middle;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+.viz-4 .voronoi path {
+  fill: none;
+  pointer-events: all;
+}
+
+.viz-4 .voronoi--show path {
+  stroke: red;
+  stroke-opacity: 0.2;
 }

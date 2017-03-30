@@ -67,7 +67,7 @@ function floatingTooltip(tooltipId, width) {
     }
 
     tt
-      .style('top', tttop - 400 + 'px')
+      .style('top', tttop - 800 + 'px')
       .style('left', ttleft + 'px');
   }
 
