@@ -294,7 +294,7 @@
 
             // console.log(datum.cont)
 
-            d3.selectAll('div')
+            d3.selectAll('#zoomed-hr')
               .transition()
               .duration(800)
               .style("opacity",0)

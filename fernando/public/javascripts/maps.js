@@ -34,7 +34,7 @@ function maps(project){
             .domain([0, 100])
             .range(["#B6D4FF", "blue"]);
 
-    d3.select("body").append("div").attr("id", "zoomed-hr")
+    d3.select(".viz-1").append("div").attr("id", "zoomed-hr")
     .style("height",'450px')
     .style("width",'600px')
     .style("position",'relative')

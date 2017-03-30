@@ -42,8 +42,7 @@ function handleBubbleData (datas) {
 
 
    window.addEventListener('urlHandled', function (e) {
-      handleData(datas);
-      setupButtons();
+      handleBubbleData(datas);
       if(e.detail) {
         json = e.detail;
       }
@@ -136,15 +135,15 @@ function handleBubbleData (datas) {
           brush.extent([[0, 0], [0, 0]]);
           handles.attr("transform", "translate(" + timeScale(value) + ",0)");
           handles.select('text').text(formatDate(value));
-
+          
           if (d3v4.event.type === 'end') {
-
+            
             d3v4.selectAll("circle").remove();
             d3v4.select(".bubLegend").remove();
             tooltip.hideTooltip();
             dateValue = formatDate(value);
             getData(dateValue, 'mean');
-          }
+          }  
         }
       }
     }
@@ -160,10 +159,11 @@ function handleBubbleData (datas) {
       var totalPledged = 0;
       var position;
       var sortedArr;
+      var sortedKeys;
       var diameter = Math.min(bubbleCanvasWidth, bubbleCanvasHeight/2) - 80;
 
       var colorrange = ['#DF4949', '#E27A3F', '#EFC94C', '#9B59B6', '#3498db',
-        '#F495A3', '#45B29D', '#293950', '#b60335', '#2d7108', '#320871',
+        '#F495A3', '#45B29D', '#293950', '#b60335', '#2d7108', '#320871', 
         '#71182b', '#64dcbe', '#9fdc64', '#9e5f28', '#ec2876', '#013639',
         '#39011d', '#9d00c4', '#771715'];
 
@@ -176,9 +176,9 @@ function handleBubbleData (datas) {
         .append('div')
         .html('Sort by: <a class="min" id="min">Min</a> / <a class="mean" id="mean">Mean</a> / <a class="max" id="max">Max</a><br><a id="clear" class="clear">Clear Filters</a>')
 
-      d3v4.select(".bubLegend")
+      /*d3v4.select(".bubLegend")
         .append('div')
-        .attr('class', 'legendLeft');
+        .attr('class', 'legendLeft');*/
 
 
       var min = document.getElementById('min');
@@ -196,7 +196,7 @@ function handleBubbleData (datas) {
       var width = 940;
       var height = 600;
       var center = { x: width / 2, y: height / 2 };
-      var sortable = [];
+      var sortable = [];      
       var bubble = d3v4.pack()
         .size([diameter, diameter]) // new data is loaded to bubble layout
         .padding(3);
@@ -215,7 +215,7 @@ function handleBubbleData (datas) {
       // @v4 Force starts up automatically,
       //  which we don't want as there aren't any nodes yet.
       simulation.stop();
-
+    
       min.addEventListener('click', function (e) {
         d3v4.selectAll("circle").remove();
         d3v4.select(".bubLegend").remove();
@@ -245,6 +245,7 @@ function handleBubbleData (datas) {
 
       for (var i = 0; i < data.length; i++) {
         var obj = {};
+        var ob = {};
         var cat = json.sub_category;
 
         if (data[i].category.name.toLowerCase() === cat.toLowerCase()) {
@@ -258,7 +259,8 @@ function handleBubbleData (datas) {
             obj.Country = data[i].country;
             obj.Month = month;
             arr.push(obj);
-            ar[data[i].goal] = ar[data[i].goal] || [];
+            ob[data[i].goal] = data[i].goal;
+            ar.push(data[i].goal);
           } else if (mth === null) {
             obj.Pledged = data[i].pledged;
             obj.Goal = data[i].goal;
@@ -266,9 +268,11 @@ function handleBubbleData (datas) {
             obj.Country = data[i].country;
             obj.Month = month;
             arr.push(obj);
-            ar[data[i].goal] = ar[data[i].goal] || [];
+            ob[data[i].goal] = data[i].goal;
+            ar.push(data[i].goal);
           }
         }
+
       }
 
       if (arr.length > 0) {
@@ -276,11 +280,15 @@ function handleBubbleData (datas) {
           return d3v4.ascending(x.Goal, y.Goal);
         });
 
+        sortedKeys = ar.sort(function(x, y){
+          return d3v4.ascending(x, y);
+        });
+
         a[count + '-' + countEnd] = [];
         b.goals = [];
         b.pledged = [];
 
-        for (var j = 0; j < sortedArr.length; j++) {
+       /* for (var j = 0; j < sortedArr.length; j++) {
           for (key in ar) {
             if (Number(key) === sortedArr[j].Goal) {
               if (Number(key) <= countEnd) {
@@ -301,6 +309,29 @@ function handleBubbleData (datas) {
                 countEnd += 1000;
               }
             }
+          }
+        }*/
+        var j = 0;
+        while (j < sortedArr.length) {
+          if (Number(sortedKeys[j]) === sortedArr[j].Goal) {
+            if (Number(sortedKeys[j]) <= countEnd) {
+                b.goals.push(sortedArr[j].Goal);
+                b.pledged.push(sortedArr[j].Pledged);
+                b.month = sortedArr[j].Month;
+                a[count + '-' + countEnd] = b;
+
+                if (json.goal.split('.0')[0] > count && json.goal.split('.0')[0] < countEnd) {
+                  position = count + '-' + countEnd;
+                }         
+                j++;
+              } else {
+                b = {};
+                b.goals = [];
+                b.pledged = [];
+                b.month = [];
+                count += 1000;
+                countEnd += 1000;
+              }
           }
         }
 
@@ -326,7 +357,7 @@ function handleBubbleData (datas) {
             a[k].av_pledged = avPledged;
             totalGoals += sumGoals;
             totalPledged += sumPledged;
-          }
+          } 
         }
 
         for (var l in a) {
@@ -337,10 +368,16 @@ function handleBubbleData (datas) {
             return b[1] - a[1];
         });
 
-        document.getElementById('info-3').innerHTML = sortable[0][0]
+        $('.goal-range span').html(sortable[0][0]);
 
         statPerc = totalPledged/totalGoals * 100;
-        statScore = statPerc/4 > 25 ? 25 : statPerc/4;
+
+        var event = new CustomEvent('computeAverageScore', {
+                        'detail': {
+                            'statScore'     : statPerc/4
+                        }
+                    });
+        window.dispatchEvent(event);
 
         /* D3 Bubble Chart */
         var r = d3v4.hierarchy(processData(a))
@@ -412,50 +449,52 @@ function handleBubbleData (datas) {
         // generate data with calculated layout values
         var nodes = bubble(r).descendants()
           .filter(function(d) { return !d.children; }); // filter out the outer bubble
-        // assign new data to existing DOM
+        // assign new data to existing DOM 
         nodes = nodes.sort(function(x, y){
           return Number(x.data.name.split('-')[0]) - Number(y.data.name.split('-')[0]);
         });
 
         var vis = svg.selectAll('circle')
-          .data(nodes, function(d) { return d.data.name; });
+          .data(nodes, function(d) {
+            return d.data.name; });
         // enter data -> remove, so non-exist selections for upcoming data won't stay -> enter new data -> ...
-        // To chain transitions,
-        // create the transition on the updating elements before the entering elements
+        // To chain transitions, 
+        // create the transition on the updating elements before the entering elements 
         // because enter.append merges entering elements into the update selection
         var duration = 500;
         // update - this is created before enter.append. it only applies to updating nodes.
         /*vis.transition()
           .duration(duration)
-          .delay(function(d, i) {delay = i * 7; return delay;})
+          .delay(function(d, i) {delay = i * 7; return delay;}) 
           .attr('transform', function(d) { return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
           .attr('r', function(d) { return d.r; })
           .style('opacity', 1); // force to 1, so they don't get stuck below 1 at enter()
 */
-        // enter - only applies to incoming elements (once emptying data)
+        // enter - only applies to incoming elements (once emptying data) 
         var bubblesE = vis.enter().append('circle')
           .classed('bubble', true)
           .attr('r', 0)
           .on('mouseover', showDetail)
           .on('mouseout', hideDetail)
           .attr('class', 'graph')
-          .attr('transform', function(d) { return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
+          .attr('transform', function(d) {
+            return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
           .attr('r', function(d) { return 0; })
           .style("fill", function(d, i) {
             return z(i); })
-          .attr('class', function(d, i) {
+          .attr('class', function(d, i) { 
             d3v4.select('.legendLeft')
             .append('div')
             .attr('data-category', d.data.name)
             .style('fill', z(i))
             .style('background', z(i))
             .attr('class', 'goal' + d.data.name);
-            return 'goal' + d.data.name;
+            return 'goal' + d.data.name; 
           })
           .transition()
           .duration(duration * 1.2)
           .attr('transform', function(d) { return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
-          .attr('r', function(d) { return d.r/1.5; })
+          .attr('r', function(d) { return d.r*1.5; })
           .style('opacity', 1);
 
         d3v4.selectAll('.goal'+ position)
@@ -474,12 +513,12 @@ function handleBubbleData (datas) {
         vis.exit()
           .transition()
           .duration(duration)
-          .attr('transform', function(d) {
+          .attr('transform', function(d) { 
             var dy = d.y - diameter/2;
             var dx = d.x - diameter/2;
             var theta = Math.atan2(dy,dx);
             var destX = diameter * (1 + Math.cos(theta) )/ 2;
-            var destY = diameter * (1 + Math.sin(theta) )/ 2;
+            var destY = diameter * (1 + Math.sin(theta) )/ 2; 
             return 'translate(' + destX + ',' + destY + ')'; })
           .attr('r', function(d) { return 0; })
           .remove();

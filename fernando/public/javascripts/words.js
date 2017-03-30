@@ -1,4 +1,4 @@
- 
+
 function words_maps(country,tex){
  var fill = d3.scale.category20();
 
@@ -25,12 +25,12 @@ function words_maps(country,tex){
 
 })
   function draw(words) {
-    d3.select("body").append("svg")
-
+    d3.select(".viz-1").append("svg")
+        .attr('class', 'words')
         .attr("width", "600px")
         .attr("height", "450px")
       .append("g")
-        .attr("transform", "translate(300,300)")
+        .attr("transform", "translate(300,200)")
       .selectAll("text")
         .data(words)
       .enter().append("text")
@@ -41,7 +41,7 @@ function words_maps(country,tex){
 
 
          .on('click',  function(d) {
-          d3.select('svg')
+          d3.select('svg.words')
           .transition()
           .duration(800)
           .style("opacity",0)

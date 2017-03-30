@@ -2252,6 +2252,13 @@ function updateTemplate(category, subcategory, monthNames) {
         textEl.classList.add('success');
     }
 
+    var event = new CustomEvent('computeMonthScore', {
+                    'detail': {
+                        'monthScore'     : (((monthAverage - yearAverage) / 2) + 50) / 4
+                    }
+                });
+    window.dispatchEvent(event);
+
     window.monthScore = (((monthAverage - yearAverage) / 2) + 50) / 4;
 
     infoCopy = "<span>"+recommendedMonths+"</span>";

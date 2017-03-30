@@ -102,7 +102,7 @@
 }
 
 
-#info-2 .cust-info span {
+.cust-info span {
     font-weight: 500;
     font-size: 40px;
     color: black;
@@ -278,6 +278,11 @@
     font-weight: 500;
     font-size: 40px;
     padding: 8px 16px;
+}
+
+/* Map Styles */
+.viz-1 {
+  padding: 0;
 }
 
 /* Bubble Chart Styles */
