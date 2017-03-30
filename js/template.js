@@ -224,6 +224,7 @@ function handleUrlRequest () {
                 ];
 
                 $(data).find('h3.m0').filter(function(){
+                    console.log(data);
                   var data = $(this);
                   title = data.text();
 
@@ -240,9 +241,10 @@ function handleUrlRequest () {
                       word = wordArr[i].trim().toLowerCase();
                       if ( !commonObj[word] ) {
                           uncommonArr.push(word);
+                          console.log(word);
                       }
                   }
-
+                  console.log(uncommonArr);
                   json.title = uncommonArr;
                 });
 
@@ -293,20 +295,23 @@ function handleUrlRequest () {
                 window.dispatchEvent(event);
 
                 window.addEventListener('computeMonthScore', function (e) {
+                    console.log(e);
                   monthScore = e.detail.monthScore;
                 });
 
                 window.addEventListener('computeAverageScore', function (e) {
+                    console.log(e);
                   averageScore = e.detail.averageScore;
                 });
 
                 totalScore = Math.round(monthScore + averageScore);
-                document.getElementById('score').innerHTML = totalScore;
+                console.log((monthScore, averageScore))
+                document.getElementById('score').innerHTML = totalScore + '/50';
             }
         }).then(function () {
             $.ajax({
                 url: '/',
-                data: JSON.stringify([json.category]),
+                data: JSON.stringify([[json.category], json.title]),
                 jsonpCallback: 'callback', // this is not relevant to the POST anymore
                 success: function (data) {
                     console.log('Success: ');
@@ -317,7 +322,6 @@ function handleUrlRequest () {
             });
         });
     });
-    maps("Amsterdam");
 }
 
 // Fire functions when the page has loaded

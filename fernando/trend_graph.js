@@ -1,13 +1,16 @@
 var months,
     monthKeys,
     monthParse = d3v4.timeParse("%Y-%m");
-d3v4.select('.viz-4').append('svg')
-.attr('id', 'trend');
-var svg = d3v4.select("#trend"),
+d3v4.select(".viz-4").append("svg")
+    .attr('width', 900)
+    .attr('height', 500)
+    .attr('class', 'trend-graph');
+var svg = d3v4.select('.trend-graph'),
     margin = {top: 20, right: 30, bottom: 30, left: 40},
     width = svg.attr("width") - margin.left - margin.right,
     height = svg.attr("height") - margin.top - margin.bottom,
-    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var x = d3v4.scaleTime()
     .range([0, width]);
@@ -75,10 +78,6 @@ d3v4.tsv("../data/file.txt", type, function(error, data) {
       .on("mouseover", mouseover)
       .on("mouseout", mouseout);
 
-  d3v4.select("#show-voronoi")
-      .property("disabled", false)
-      .on("change", function() { voronoiGroup.classed("voronoi--show", this.checked); });
-
   function mouseover(d) {
     d3v4.select(d.data.city.line).classed("city--hover", true);
     d.data.city.line.parentNode.appendChild(d.data.city.line);
@@ -93,7 +92,6 @@ d3v4.tsv("../data/file.txt", type, function(error, data) {
 });
 
 function type(d, i, columns) {
-  console.log(d);
   if (!months) monthKeys = columns.slice(1), months = monthKeys.map(monthParse);
   var c = {name: d.name.replace(/ (msa|necta div|met necta|met div)$/i, ""), values: null};
   c.values = monthKeys.map(function(k, i) { return {city: c, date: months[i], value: d[k] / 100}; });
