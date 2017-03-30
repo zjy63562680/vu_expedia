@@ -1,0 +1,406 @@
+<script>
+
+d3.select('body').append('legend')
+  .append('div')
+  .html('Sort by: <a class="min" id="min">Min</a> / <a class="mean" id="mean">Mean</a> / <a class="max" id="max">Max</a><br><a id="clear" class="clear">Clear Filters</a>')
+  .append('div')
+  .attr('class', 'legendLeft');
+
+
+  /* Events from UI */
+  d3.json("europeFinal.json", function (datas) {
+    var data = datas.data;
+    var columns = ["Pledged", "Goal"];
+    var keys = columns;
+    var picker = document.getElementById('dataCenterPicker');
+    var min = document.getElementById('min');
+    var max = document.getElementById('max');
+    var mean = document.getElementById('mean');
+    var clear = document.getElementById('clear');
+    var statStat = 'mean';
+    var format = d3.timeFormat('%B');
+    var json = {};
+    json.category = "Video Games";
+    json.goal = "200";
+    var dateValue;
+  console.log('bbubble');
+  console.log(window);
+window.addEventListener('urlHandled', function (e) {
+  console.log(e);
+  if(e.detail) {
+  }
+});
+    getData(null, 'mean');
+    
+    min.addEventListener('click', function (e) {
+      d3.select(".bubs").remove();
+      statStat = 'min';
+      getData(dateValue, statStat);
+    });
+    max.addEventListener('click', function (e) {
+      d3.select(".bubs").remove();
+      statStat = 'max';
+      getData(dateValue, statStat);
+    });
+    mean.addEventListener('click', function (e) {
+      d3.select(".bubs").remove();
+      statStat = 'mean';
+      getData(dateValue, statStat);
+    });
+    clear.addEventListener('click', function(e){
+        d3.select(".bubs").remove();
+        d3.select(".slide").remove();
+        getData(null, 'mean');
+        drawSlider();
+    }, false);
+
+    drawSlider();
+
+    function drawSlider () {
+      var formatDate = d3.timeFormat("%B");
+      var x = d3.scaleLinear().range([0, width]);
+
+      // parameters
+      var margin = {
+          top: 50,
+          right: 50,
+          bottom: 50,
+          left: 50
+        },
+        width = 960 - margin.left - margin.right,
+        height = 300 - margin.bottom - margin.top;
+
+      // scale function
+      var timeScale = d3.scaleTime()
+        .domain([new Date('2012-01-02'), new Date('2013-01-01')])
+        .range([0, width])
+        .clamp(true);
+
+      // initial value
+      var startValue = timeScale(new Date('2012-03-20'));
+      startingValue = new Date('2012-01-20');
+      //////////
+
+      // defines brush
+      var brush = d3.brushX()
+          .extent([[0, 0], [startingValue, startingValue]])
+          .on("start brush end", brushed);
+
+      var sv = d3.select("body").append("svg")
+        .attr('class', 'slide')
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        // classic transform to position g
+        .attr("transform", "translate(" + margin.left + ", 0)");
+
+      sv.append("g")
+        .attr("class", "x axis")
+      // put in middle of screen
+      .attr("transform", "translate(0," + height / 2 + ")")
+      // inroduce axis
+      .call(d3.axisBottom()
+        .scale(timeScale)
+        .tickFormat(function(d) {
+          return formatDate(d);
+        })
+        .tickSize(0)
+        .tickPadding(12)
+        .tickValues([timeScale.domain()[0], timeScale.domain()[1]]))
+        .select(".domain")
+        .select(function() {
+          return this.parentNode.appendChild(this.cloneNode(true));
+        })
+        .attr("class", "halo");
+
+      var slider = sv.append("g")
+        .attr("class", "slider")
+        .call(brush);
+
+      slider.select(".background")
+        .attr("height", height);
+
+      var handles = slider.append("g")
+        .attr("class", "handles");
+
+      handles.append("path")
+        .attr("transform", "translate(0," + height / 2 + ")")
+        .attr("d", "M 0 -20 V 20");
+
+      handles.append('text')
+        .text(formatDate(startingValue))
+        .attr("transform", "translate(" + (-18) + " ," + (height / 2 - 25) + ")")
+        .style('display', 'block');
+
+      slider
+        .call(brush.move);
+
+      function brushed() {
+        var value = d3.brushSelection(d3.select(".slider").node());
+
+        if (d3.event.selection) {
+          value = timeScale.invert(d3.mouse(this)[0]);
+          brush.extent([[0, 0], [value, value]]);
+          handles.attr("transform", "translate(" + timeScale(value) + ",0)");
+          handles.select('text').text(formatDate(value));
+
+          if (d3.event.type === 'end') {
+
+          d3.select(".bubs").remove();
+           dateValue = formatDate(value);
+          getData(formatDate(value), 'mean');
+          }
+        }
+      }
+    }
+
+    function getData (mth, stats) {
+      var arr = [];
+      var ar = [];
+      var a = {};
+      var count = 0;
+      var countEnd = 10000;
+      var b = {};
+      var totalGoals = 0;
+      var totalPledged = 0;
+      var position;
+      var sortedArr;
+
+      for (var i = 0; i < data.length; i++) {
+        var obj = {};
+
+        if (data[i].category.name === json.category) {
+          var date = new Date(1000*data[i].launched_at);
+          var month = format(date);
+
+          if (mth && month.toLowerCase() === mth.toLowerCase()) {
+            obj.Pledged = data[i].pledged;
+            obj.Goal = data[i].goal;
+            obj.Category = data[i].category.name;
+            obj.Country = data[i].country;
+            obj.Month = month;
+            arr.push(obj);
+            ar[data[i].goal] = ar[data[i].goal] || [];
+          } else if (mth === null) {
+            obj.Pledged = data[i].pledged;
+            obj.Goal = data[i].goal;
+            obj.Category = data[i].category.name;
+            obj.Country = data[i].country;
+            obj.Month = month;
+            arr.push(obj);
+            ar[data[i].goal] = ar[data[i].goal] || [];
+          }
+        }
+      }
+      sortedArr = arr.sort(function(x, y){
+        return d3.ascending(x.Goal, y.Goal);
+      });
+
+      a[count + '-' + countEnd] = [];
+      b.goals = [];
+      b.pledged = [];
+
+      for (var j = 0; j < sortedArr.length; j++) {
+        for (key in ar) {
+          if (Number(key) === sortedArr[j].Goal) {
+            if (Number(key) <= countEnd) {
+              b.goals.push(sortedArr[j].Goal);
+              b.pledged.push(sortedArr[j].Pledged);
+              a[count + '-' + countEnd] = b;
+
+              if (json.goal.split('.0')[0] > count && json.goal.split('.0')[0] < countEnd) {
+                position = count + '-' + countEnd;
+              }
+            } else {
+              b = {};
+              b.goals = [];
+              b.pledged = [];
+              count += 10000;
+              countEnd += 10000;
+            }
+          }
+        }
+      }
+
+      for (var k in a) {
+        var avGoals, avPledged, sumGoals, sumPledged;
+
+        if (a[k].goals) {
+          sumGoals = d3.sum(a[k].goals);
+          sumPledged = d3.sum(a[k].pledged);
+          if (stats === 'mean') {
+            avGoals = sumGoals/a[k].goals.length;
+            avPledged = sumPledged/a[k].pledged.length;
+          } else if (stats === 'min') {
+            avGoals = d3.min(a[k].goals);
+            avPledged = d3.min(a[k].pledged);
+          } else if (stats === 'max') {
+            avGoals = d3.max(a[k].goals);
+            avPledged = d3.max(a[k].pledged);
+          }
+
+          a[k] = avPledged/avGoals;
+          totalGoals += sumGoals;
+          totalPledged += sumPledged;
+        } 
+      }
+
+      statPerc = totalPledged/totalGoals * 100;
+      statScore = statPerc/4;
+
+      /* D3 Bubble Chart */
+      var diameter = Math.min(document.getElementById('chart').clientWidth, window.innerHeight - document.querySelector('header').clientHeight) - 20;
+      var svg = d3.select(".viz-2")
+        .append("svg:svg")
+        .attr("width", canvasWidthTotal)
+        .attr("height", canvasHeight)
+        .attr('class', 'bubs')
+        .attr('id', 'chart')
+        .attr('width', diameter)
+        .attr('height', diameter);
+            
+      var bubble = d3.pack()
+          .size([diameter, diameter]) // new data is loaded to bubble layout
+          .padding(3);
+      var r = d3.hierarchy(processData(a))
+        .sum(function(d) { return d.size; })
+        .sort(function(a, b) { return b.value - a.value; });
+
+      drawBubbles(a);
+
+
+      var tooltip = floatingTooltip('gates_tooltip', 240);
+
+      function showDetail(d) {
+        // change outline to indicate hover state.
+        d3.select(this).attr('stroke', 'black');
+        console.log(d);
+        var content = '<span class="name">Category: </span><span class="value">' +
+                      d.category +
+                      '</span><br/>' +
+                      '<span class="name">Goal: </span><span class="value">$' +
+                      d.goal +
+                      '</span><br/>' +
+                      '<span class="name">Pledged: </span><span class="value">$' +
+                      d.pledged +
+                      '</span><br/>' +
+                      '<span class="name">Month: </span><span class="value">' +
+                      d.month +
+                      '</span>';
+                      console.log(content);
+        tooltip.showTooltip(content, d3.event);
+      }
+
+      /*
+       * Hides tooltip
+       */
+      function hideDetail(d) {
+        console.log(d);
+        // reset outline
+        d3.select(this)
+          .attr('stroke', d3.rgb(fillColor(d.group)).darker());
+
+        tooltip.hideTooltip();
+      }
+
+      function drawBubbles(c) {
+        // generate data with calculated layout values
+        var nodes = bubble(r).descendants()
+          .filter(function(d) { return !d.children; }); // filter out the outer bubble
+        // assign new data to existing DOM 
+        var vis = svg.selectAll('circle')
+          .data(nodes, function(d) { return d.name; });
+        // enter data -> remove, so non-exist selections for upcoming data won't stay -> enter new data -> ...
+        // To chain transitions, 
+        // create the transition on the updating elements before the entering elements 
+        // because enter.append merges entering elements into the update selection
+        var duration = 500;
+        var delay = 0;
+        // update - this is created before enter.append. it only applies to updating nodes.
+        vis.transition()
+          .duration(duration)
+          .delay(function(d, i) {delay = i * 7; return delay;}) 
+          .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+          .attr('r', function(d) { return d.r; })
+          .style('opacity', 1); // force to 1, so they don't get stuck below 1 at enter()
+
+        // enter - only applies to incoming elements (once emptying data) 
+        vis.enter().append('circle')
+        .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+          .attr('r', function(d) { return 0; })
+          .attr('class', function(d) { 
+            d3.select('.legendLeft')
+            .append('div')
+            .attr('data-category', d.data.name)
+            .attr('class', 'goal' + d.data.name)
+            return 'goal' + d.data.name; })
+            .transition()
+          .duration(duration * 1.2)
+          .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+          .attr('r', function(d) { return d.r; })
+          .style('opacity', 1);
+
+        svg.selectAll('.goal'+ position)
+          .attr('stroke', '#000000')
+          .attr('stroke-width', '4')
+          .append("circle")
+          .attr('transform', function(d) { return 'translate(5, 5)'; })
+          .attr('r', function(d) { return 3; });
+
+         var colorrange = ["#B30000", "#E34A33", "#FC8D59", "#FDBB84", "#FDD49E", "#FEF0D9", "#980043", "#DD1C77", "#DF65B0", "#C994C7", "#D4B9DA", "#F1EEF6", "#045A8D", "#2B8CBE", "#74A9CF", "#A6BDDB", "#D0D1E6", "#F1EEF6"];
+
+         var z = d3.scaleOrdinal()
+    .range(colorrange);
+    var margin = {top: 20, right: 40, bottom: 30, left: 30};
+    var width = document.body.clientWidth - margin.left - margin.right;
+var height = 400 - margin.top - margin.bottom;
+
+        var legend = svg.append("g")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 10)
+        .attr("text-anchor", "end")
+      .selectAll("g")
+      .data(nodes)
+      .enter().append("g")
+        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+    legend.append("rect")
+        .attr("x", width - 600)
+        .attr("width", 19)
+        .attr("height", 19)
+        .attr("fill", z);
+
+    legend.append("text")
+        .attr("x", width - 610)
+        .attr("y", 9.5)
+        .attr("dy", "0.32em")
+        .text(function(d) { return d.data.name; });
+
+        // exit
+        vis.exit()
+          .transition()
+          .duration(duration)
+          .attr('transform', function(d) { 
+            var dy = d.y - diameter/2;
+            var dx = d.x - diameter/2;
+            var theta = Math.atan2(dy,dx);
+            var destX = diameter * (1 + Math.cos(theta) )/ 2;
+            var destY = diameter * (1 + Math.sin(theta) )/ 2; 
+            return 'translate(' + destX + ',' + destY + ')'; })
+          .attr('r', function(d) { return 0; })
+          .remove();
+      }
+
+      function processData(data) {
+        if(!data) return;
+        var obj = data;
+        var newDataSet = [];
+
+        for(var prop in obj) {
+          newDataSet.push({name: prop, className: prop.toLowerCase().replace(/ /g,''), size: obj[prop]});
+        }
+        return {children: newDataSet};
+      }
+    }
+  });
+  </script>

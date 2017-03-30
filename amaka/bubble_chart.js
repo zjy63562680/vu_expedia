@@ -14,7 +14,7 @@ function onDataLoaded(error, data) {
 
 var json = {"category": "Videos", "sub_category": "Video Games", "goal": "200", "pledged": "0"};
 var statPerc;
-console.log(json);
+
 function handleBubbleData (datas) {
   d3v4.select('.bubs').remove();
   d3v4.select(".bubLegend").remove();
