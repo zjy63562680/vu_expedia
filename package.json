@@ -14,5 +14,10 @@
     "express": "latest",
     "lodash": "^4.17.4",
     "request": "latest"
+  },
+  "devDependencies": {
+    "body-parser": "^1.17.1",
+    "finalhandler": "^1.0.1",
+    "google-trends-api": "^4.1.0"
   }
 }

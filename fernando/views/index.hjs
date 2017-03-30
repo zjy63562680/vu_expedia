@@ -9,14 +9,10 @@
     </head>
 
 
-<script src="./javascripts/d3.min.js">
-
-</script>
+<script src="./javascripts/d3.min.js"></script>
 <script src="./javascripts/words.js"></script>
 <script src="./javascripts/topojson.js"></script>
 <script src="./javascripts/datamaps.world.hires.js"></script>
-<!-- <script src="./javascripts/lodash.min.js"></script> -->
-
 <script type="text/javascript" src="./javascripts/maps.js"></script>
     <style>
         <style type="text/css">
