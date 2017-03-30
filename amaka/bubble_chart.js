@@ -370,13 +370,14 @@ function handleBubbleData (datas) {
 
         $('.goal-range span').html(sortable[0][0]);
 
-        statPerc = totalPledged/totalGoals * 100;
+        statPerc = totalPledged/totalGoals * 25;
+
 
         var event = new CustomEvent('computeAverageScore', {
-                        'detail': {
-                            'statScore'     : statPerc/4
-                        }
-                    });
+          'detail': {
+            'averageScore'     : statPerc
+          }
+        });
         window.dispatchEvent(event);
 
         /* D3 Bubble Chart */
@@ -386,12 +387,10 @@ function handleBubbleData (datas) {
 
         drawBubbles(a);
       } else {
-        d3v4.select('.slide').remove();
         d3v4.select(".bubLegend").remove();
         d3v4.select('.bubs')
         .append('text')
         .attr("transform", "translate(300, 100)")
-        .style('display', 'block')
         .text('No info to show')
         .attr('class', 'nothing');
         return;
@@ -494,7 +493,7 @@ function handleBubbleData (datas) {
           .transition()
           .duration(duration * 1.2)
           .attr('transform', function(d) { return 'translate(' + d.x/2 + ',' + d.y/2 + ')'; })
-          .attr('r', function(d) { return d.r*1.5; })
+          .attr('r', function(d) { return d.r; })
           .style('opacity', 1);
 
         d3v4.selectAll('.goal'+ position)
