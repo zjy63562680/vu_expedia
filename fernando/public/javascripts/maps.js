@@ -1,4 +1,11 @@
-
+var json = {"category": "Videos"};
+maps(json.category);
+window.addEventListener('urlHandled', function (e) {
+        if(e.detail) {
+            json = e.detail;
+            maps(json.category);
+        }
+});
 
 function maps(project){
   
