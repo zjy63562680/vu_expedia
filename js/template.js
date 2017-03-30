@@ -1,51 +1,7 @@
 var json;
 var totalScore;
 var monthScore, averageScore;
-
-document.addEventListener("DOMContentLoaded", function() {
-
-    bindNavigation();
-    handleUrlRequest();
-    // URL entered event?
-
-});
-
-// Adds click listeners to tabs
-function bindNavigation() {
-
-    var tabs = document.querySelectorAll('.cust-tab');
-
-    Array.prototype.forEach.call(tabs, function(tab){
-
-        tab.addEventListener("click", function(){
-
-            // Get the target ID and change into a class (overwriting the framework this way)
-            var target = '.'+ tab.hash.substr(1);
-
-            // Scroll to target
-            document.querySelector(target).scrollIntoView({
-                behavior: 'smooth'
-            });
-
-            window.scrollBy(0, -238); // Offsets the fixed nav
-
-        }, false);
-
-    });
-}
-
-function handleUrlRequest () {
-    $('.submit').on('click', function (e) {
-        e.preventDefault();
-        var input = $('.url-input');
-        json = {};
-        $.ajax({
-            type: "GET",
-            url: $(input).val(), 
-            data: input.serialize(), // serializes the form's elements.
-        }).then(function (data) {
-            var title, country, category, sub_category, goal;
-            var stopwords = [
+var stopwords = [
                 'a',
                 'about',
                 'above',
@@ -223,8 +179,52 @@ function handleUrlRequest () {
                 'zero'
                 ];
 
-                $(data).find('h3.m0').filter(function(){
-                    console.log(data);
+document.addEventListener("DOMContentLoaded", function() {
+
+    bindNavigation();
+    handleUrlRequest();
+    // URL entered event?
+
+});
+
+// Adds click listeners to tabs
+function bindNavigation() {
+
+    var tabs = document.querySelectorAll('.cust-tab');
+
+    Array.prototype.forEach.call(tabs, function(tab){
+
+        tab.addEventListener("click", function(){
+
+            // Get the target ID and change into a class (overwriting the framework this way)
+            var target = '.'+ tab.hash.substr(1);
+
+            // Scroll to target
+            document.querySelector(target).scrollIntoView({
+                behavior: 'smooth'
+            });
+
+            window.scrollBy(0, -238); // Offsets the fixed nav
+
+        }, false);
+
+    });
+}
+
+function handleUrlRequest () {
+    $('.submit').on('click', function (e) {
+        e.preventDefault();
+        var input = $('.url-input');
+        json = {};
+
+        $.ajax({
+            type: "GET",
+            url: $(input).val(), 
+            data: input.serialize(), // serializes the form's elements.
+        }).then(function (data) {
+            var title, country, category, sub_category, goal;
+            
+                $(data).find('h2.type-24').filter(function(){
                   var data = $(this);
                   title = data.text();
 
@@ -241,10 +241,9 @@ function handleUrlRequest () {
                       word = wordArr[i].trim().toLowerCase();
                       if ( !commonObj[word] ) {
                           uncommonArr.push(word);
-                          console.log(word);
                       }
                   }
-                  console.log(uncommonArr);
+
                   json.title = uncommonArr;
                 });
 
@@ -294,18 +293,8 @@ function handleUrlRequest () {
                 });
                 window.dispatchEvent(event);
 
-                window.addEventListener('computeMonthScore', function (e) {
-                    console.log(e);
-                  monthScore = e.detail.monthScore;
-                });
+                totalScore = Math.round(window.monthScore + window.averageScore);
 
-                window.addEventListener('computeAverageScore', function (e) {
-                    console.log(e);
-                  averageScore = e.detail.averageScore;
-                });
-
-                totalScore = Math.round(monthScore + averageScore);
-                console.log((monthScore, averageScore))
                 document.getElementById('score').innerHTML = totalScore + '/50';
             }
         }).then(function () {
