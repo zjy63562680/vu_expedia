@@ -291,13 +291,17 @@ function handleUrlRequest () {
                         'googletrend' : 'example',
                     }
                 });
+                window.json = json;
                 window.dispatchEvent(event);
 
                 totalScore = Math.round(window.monthScore + window.averageScore);
 
                 document.getElementById('score').innerHTML = totalScore + '/50';
+
+                
             }
         }).then(function () {
+            maps(json.category);
             $.ajax({
                 url: '/',
                 data: JSON.stringify([[json.category], json.title]),
@@ -311,6 +315,8 @@ function handleUrlRequest () {
             });
         });
     });
+
+    maps("Amsterdam");
 }
 
 // Fire functions when the page has loaded

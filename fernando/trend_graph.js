@@ -92,7 +92,6 @@ d3v4.tsv("../data/file1.txt", type, function(error, data) {
 });
 
 function type(d, i, columns) {
-  console.log(d);
   if (!months) monthKeys = columns.slice(1), months = monthKeys.map(monthParse);
   var c = {name: d.name.replace(/ (msa|necta div|met necta|met div)$/i, ""), values: null};
   c.values = monthKeys.map(function(k, i) { return {city: c, date: months[i], value: d[k] / 100}; });
